@@ -62,7 +62,7 @@ export function LoadingScreen() {
         </p>
       </div>
       <div>
-        <div className="mb-4 flex justify-between text-label uppercase text-muted">
+        <div className="mb-4 flex justify-between text-label uppercase text-muted-foreground">
           <span>Loading portfolio</span><span>{progress}%</span>
         </div>
         <div className="h-px overflow-hidden bg-white/20">

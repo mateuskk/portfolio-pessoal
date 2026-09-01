@@ -26,18 +26,18 @@ export function AboutSection({ content }: AboutSectionProps) {
             <div aria-hidden="true" className="absolute inset-x-[12%] top-1/2 h-px bg-white/20" />
             <div aria-hidden="true" className="absolute inset-y-[10%] left-1/2 w-px bg-white/20" />
             <div aria-hidden="true" className="absolute inset-[22%] border border-white/10" />
-            <figcaption className="absolute inset-x-4 bottom-4 flex justify-between text-label uppercase text-muted">
+            <figcaption className="absolute inset-x-4 bottom-4 flex justify-between text-label uppercase text-muted-foreground">
               <span>Portrait placeholder</span><span>4:5</span>
             </figcaption>
           </figure>
         </div>
 
         <div className="grid content-start gap-10 lg:col-span-5 lg:col-start-7 lg:row-start-2">
-          <div className="flex items-center gap-3 text-label uppercase text-muted">
+          <div className="flex items-center gap-3 text-label uppercase text-muted-foreground">
             <span className="size-2 rounded-full bg-paper" aria-hidden="true" />
             <span>{content.availability}</span>
           </div>
-          <div className="grid gap-6 text-base leading-relaxed text-muted sm:text-lg">
+          <div className="grid gap-6 text-base leading-relaxed text-muted-foreground sm:text-lg">
             {content.paragraphs.map((paragraph) => (
               <RevealText as="p" key={paragraph}>{paragraph}</RevealText>
             ))}

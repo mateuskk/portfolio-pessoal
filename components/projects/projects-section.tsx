@@ -94,7 +94,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
         </section>
 
         <div className="mt-6 flex items-center justify-between px-page">
-          <p aria-live="polite" className="text-label uppercase text-muted">
+          <p aria-live="polite" className="text-label uppercase text-muted-foreground">
             Project {String(mobileIndex + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}
           </p>
           <div className="flex gap-2">

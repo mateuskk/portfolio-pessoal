@@ -82,7 +82,7 @@ export function Navbar({ items, initials, email }: NavbarProps) {
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
                     "focus-ring group isolate relative block overflow-hidden rounded-full px-4 py-3 transition-colors",
-                    isActive ? "text-ink" : "text-muted hover:text-paper focus-visible:text-paper",
+                    isActive ? "text-ink" : "text-muted-foreground hover:text-paper focus-visible:text-paper",
                   )}
                 >
                   {isActive && (
@@ -105,7 +105,7 @@ export function Navbar({ items, initials, email }: NavbarProps) {
         </motion.ul>
 
         <motion.div className="hidden md:block" variants={navbarItem}>
-          <MagneticLink href={`mailto:${email}`} className="group inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-3 text-muted transition-colors hover:bg-paper hover:text-ink">
+          <MagneticLink href={`mailto:${email}`} className="group inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-3 text-muted-foreground transition-colors hover:bg-paper hover:text-ink">
             <span className="size-1.5 rounded-full bg-paper transition-colors group-hover:bg-ink" /> Let&apos;s talk
           </MagneticLink>
         </motion.div>

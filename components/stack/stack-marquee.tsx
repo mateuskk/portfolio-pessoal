@@ -47,7 +47,7 @@ export function StackMarquee({ items, direction, name }: StackMarqueeProps) {
         type="button"
         aria-label={`${manualPaused ? "Resume" : "Pause"} ${name} technology rail`}
         aria-pressed={manualPaused}
-        className="focus-ring absolute right-3 top-3 z-10 rounded-full border border-white/20 bg-ink/85 px-3 py-2 text-label uppercase text-muted opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 focus:opacity-100"
+        className="focus-ring absolute right-3 top-3 z-10 rounded-full border border-white/20 bg-ink/85 px-3 py-2 text-label uppercase text-muted-foreground opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 focus:opacity-100"
         onClick={() => setManualPaused((paused) => !paused)}
         onFocus={() => setFocusPaused(true)}
         onBlur={() => setFocusPaused(false)}

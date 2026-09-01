@@ -57,13 +57,13 @@ export function Hero({ content }: HeroProps) {
       <div className="hairline absolute inset-x-page top-24 lg:top-28" />
       <div className="relative z-20 grid gap-5 text-label uppercase lg:col-span-12 lg:grid-cols-12">
         <RevealText as="p" className="lg:col-span-3">Portfolio / 2026</RevealText>
-        <RevealText as="p" className="text-muted lg:col-span-4 lg:col-start-9 lg:text-right">
+        <RevealText as="p" className="text-muted-foreground lg:col-span-4 lg:col-start-9 lg:text-right">
           {content.location}<br />{content.availability}
         </RevealText>
       </div>
 
       <div className="relative z-20 my-auto py-16 sm:py-20 lg:col-span-10 lg:py-24">
-        <RevealText as="p" className="mb-5 text-label uppercase text-muted">{content.name} — Digital craft</RevealText>
+        <RevealText as="p" className="mb-5 text-label uppercase text-muted-foreground">{content.name} — Digital craft</RevealText>
         <h1 id="hero-title" className="max-w-[11ch] text-display font-medium leading-[0.82] tracking-[-0.07em]">
           <RevealText>{primaryWords}&nbsp;</RevealText>
           <RevealText>
@@ -72,7 +72,7 @@ export function Hero({ content }: HeroProps) {
         </h1>
         <RevealText
           as="p"
-          className="mt-8 max-w-sm text-balance text-base leading-relaxed text-muted sm:max-w-md lg:ml-[50%] lg:text-lg"
+          className="mt-8 max-w-sm text-balance text-base leading-relaxed text-muted-foreground sm:max-w-md lg:ml-[50%] lg:text-lg"
         >
           I shape precise digital experiences where technology, typography, and motion move as one.
         </RevealText>
@@ -100,7 +100,7 @@ export function Hero({ content }: HeroProps) {
           <span className="grid size-9 place-items-center rounded-full border border-white/25 transition-colors group-hover:bg-paper group-hover:text-ink">↓</span>
           Explore projects
         </MagneticLink>
-        <p className="text-muted lg:col-span-3 lg:col-start-10 lg:text-right">Scroll to discover</p>
+        <p className="text-muted-foreground lg:col-span-3 lg:col-start-10 lg:text-right">Scroll to discover</p>
       </div>
 
       <div className="absolute bottom-0 left-[33.333%] top-0 hidden w-px bg-white/[0.06] lg:block" />

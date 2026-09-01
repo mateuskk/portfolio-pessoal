@@ -34,7 +34,7 @@ export function StackSection({ items }: StackSectionProps) {
         )}
       </div>
 
-      <div className="mt-8 flex justify-between px-page text-label uppercase text-muted">
+      <div className="mt-8 flex justify-between px-page text-label uppercase text-muted-foreground">
         <span>Selected technologies</span>
         <span>{reduceMotion ? "Static for reduced motion" : "Scroll responsive / Hover or focus to pause"}</span>
       </div>

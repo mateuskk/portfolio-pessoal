@@ -10,8 +10,11 @@
     "build": "vinext build",
     "start": "wrangler dev --config dist/server/wrangler.json",
     "test": "vitest",
+    "pretest:e2e": "node scripts/prepare-e2e-server.mjs",
+    "test:e2e": "playwright test",
     "lint": "oxlint",
-    "format": "oxfmt"
+    "format": "oxfmt",
+    "verify": "npm test -- --run && npm run lint && npm run build && npm run test:e2e"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",

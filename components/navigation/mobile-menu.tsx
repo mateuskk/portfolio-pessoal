@@ -77,13 +77,13 @@ export function MobileMenu({ items, open, onOpenChange }: MobileMenuProps) {
                   onClick={() => onOpenChange(false)}
                 >
                   <span>{item.label}</span>
-                  <span className="text-label text-muted">0{index + 1}</span>
+                  <span className="text-label text-muted-foreground">0{index + 1}</span>
                 </a>
               </motion.li>
             ))}
           </motion.ul>
         </nav>
-        <p className="mt-8 text-label uppercase text-muted">Menu / Portfolio 2026</p>
+        <p className="mt-8 text-label uppercase text-muted-foreground">Menu / Portfolio 2026</p>
       </DialogContent>
     </Dialog>
   );

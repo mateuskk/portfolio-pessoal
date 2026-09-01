@@ -10,7 +10,7 @@ type SectionHeadingProps = {
 export function SectionHeading({ index, eyebrow, title, className }: SectionHeadingProps) {
   return (
     <header className={cn("grid gap-5 lg:grid-cols-12", className)}>
-      <div className="flex items-start gap-5 text-label uppercase text-muted lg:col-span-3">
+      <div className="flex items-start gap-5 text-label uppercase text-muted-foreground lg:col-span-3">
         <span aria-hidden="true">[ {index} ]</span>
         <span>{eyebrow}</span>
       </div>

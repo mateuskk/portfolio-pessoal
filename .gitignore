@@ -4,6 +4,7 @@ node_modules/
 .npm-cache/
 .next/
 .vinext/
+.e2e-server/
 out/
 dist/
 .wrangler/

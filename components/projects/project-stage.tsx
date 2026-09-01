@@ -47,16 +47,16 @@ export function ProjectStage({ activeIndex, projects }: ProjectStageProps) {
         >
           <ProjectArt className="col-span-7 h-full" direction={project.artDirection} title={project.title} />
           <div className="col-span-5 grid content-between p-[clamp(2rem,4vw,4.5rem)]">
-            <div className="flex justify-between text-label uppercase text-muted">
+            <div className="flex justify-between text-label uppercase text-muted-foreground">
               <span>[ {project.index} ]</span><span>{project.year}</span>
             </div>
             <div>
-              <p className="text-label uppercase text-muted">{project.role}</p>
+              <p className="text-label uppercase text-muted-foreground">{project.role}</p>
               <h3 id={headingId} className="mt-5 font-serif text-[clamp(4.25rem,7vw,8.5rem)] leading-[0.78] tracking-[-0.065em]">{project.title}</h3>
-              <p className="mt-9 max-w-md text-base leading-relaxed text-muted">{project.summary}</p>
+              <p className="mt-9 max-w-md text-base leading-relaxed text-muted-foreground">{project.summary}</p>
               <ul aria-label={`${project.title} technologies`} className="mt-8 flex flex-wrap gap-2">
                 {project.stack.map((technology) => (
-                  <li key={technology} className="rounded-full border border-white/15 px-3 py-2 text-label uppercase text-muted">{technology}</li>
+                  <li key={technology} className="rounded-full border border-white/15 px-3 py-2 text-label uppercase text-muted-foreground">{technology}</li>
                 ))}
               </ul>
             </div>
@@ -64,9 +64,9 @@ export function ProjectStage({ activeIndex, projects }: ProjectStageProps) {
               {project.href ? (
                 <a className="focus-ring border-b border-white/40 pb-1" href={project.href}>View case study ↗</a>
               ) : (
-                <span className="text-muted">Case study / Soon</span>
+                <span className="text-muted-foreground">Case study / Soon</span>
               )}
-              <span className="text-muted">{project.index} / {String(projects.length).padStart(2, "0")}</span>
+              <span className="text-muted-foreground">{project.index} / {String(projects.length).padStart(2, "0")}</span>
             </div>
           </div>
         </motion.article>
