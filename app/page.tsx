@@ -1,6 +1,8 @@
+import { AboutSection } from "@/components/about/about-section";
 import { Hero } from "@/components/hero/hero";
 import { Navbar } from "@/components/navigation/navbar";
 import { SmoothScrollProvider } from "@/components/providers/smooth-scroll-provider";
+import { StackSection } from "@/components/stack/stack-section";
 import { portfolioContent } from "@/content/portfolio";
 
 export default function Home() {
@@ -13,6 +15,8 @@ export default function Home() {
       />
       <main id="main-content" className="overflow-clip">
         <Hero content={portfolioContent.person} />
+        <AboutSection content={{ ...portfolioContent.about, availability: portfolioContent.person.availability }} />
+        <StackSection items={portfolioContent.stack} />
 
         <section id="projects" className="border-t border-white/15 px-page py-24 lg:py-36">
           <div className="grid gap-10 lg:grid-cols-12">
