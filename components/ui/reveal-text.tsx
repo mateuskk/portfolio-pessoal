@@ -25,8 +25,9 @@ export function RevealText({ children, className, as = "span" }: RevealTextProps
   }
 
   const MotionElement = motion[as];
+  const Wrapper = as === "span" ? "span" : "div";
   return (
-    <span className="block overflow-hidden">
+    <Wrapper className="block overflow-hidden">
       <MotionElement
         className={staticClassName}
         initial="hidden"
@@ -36,6 +37,6 @@ export function RevealText({ children, className, as = "span" }: RevealTextProps
       >
         {children}
       </MotionElement>
-    </span>
+    </Wrapper>
   );
 }
