@@ -1,42 +1,18 @@
+import { Hero } from "@/components/hero/hero";
 import { Navbar } from "@/components/navigation/navbar";
+import { SmoothScrollProvider } from "@/components/providers/smooth-scroll-provider";
 import { portfolioContent } from "@/content/portfolio";
 
 export default function Home() {
   return (
-    <>
+    <SmoothScrollProvider>
       <Navbar
         items={portfolioContent.navigation}
         initials={portfolioContent.person.initials}
         email={portfolioContent.contact.email}
       />
       <main id="main-content" className="overflow-clip">
-        <section className="relative flex min-h-svh flex-col justify-between px-page pb-10 pt-28 lg:pb-14 lg:pt-36">
-          <div className="hairline absolute inset-x-page top-24 lg:top-28" />
-          <div className="grid gap-8 text-label uppercase lg:grid-cols-12">
-            <p className="lg:col-span-3">Portfolio / 2026</p>
-            <p className="text-muted lg:col-span-4 lg:col-start-9 lg:text-right">
-              São Paulo, BR<br />Available for selected projects
-            </p>
-          </div>
-
-          <div className="relative py-20 lg:py-24">
-            <p className="mb-5 text-label uppercase text-muted">Seu Nome — Digital craft</p>
-            <h1 className="max-w-[12ch] text-display font-medium leading-[0.82] tracking-[-0.07em]">
-              Creative <span className="font-serif font-normal italic tracking-[-0.045em]">Developer</span>
-            </h1>
-            <p className="mt-8 max-w-md text-balance text-base leading-relaxed text-muted lg:ml-[50%] lg:text-lg">
-              I shape precise digital experiences where technology, typography, and motion move as one.
-            </p>
-          </div>
-
-          <div className="grid items-end gap-6 text-label uppercase lg:grid-cols-12">
-            <a className="focus-ring group inline-flex w-fit items-center gap-3 lg:col-span-4" href="#projects">
-              <span className="grid size-9 place-items-center rounded-full border border-white/25 transition-colors group-hover:bg-paper group-hover:text-ink">↓</span>
-              Explore projects
-            </a>
-            <p className="text-muted lg:col-span-3 lg:col-start-10 lg:text-right">Scroll to discover</p>
-          </div>
-        </section>
+        <Hero content={portfolioContent.person} />
 
         <section id="projects" className="border-t border-white/15 px-page py-24 lg:py-36">
           <div className="grid gap-10 lg:grid-cols-12">
@@ -59,6 +35,6 @@ export default function Home() {
         <p>© 2026 Seu Nome</p>
         <a className="focus-ring transition-colors hover:text-paper" href="#main-content">Back to top ↑</a>
       </footer>
-    </>
+    </SmoothScrollProvider>
   );
 }
