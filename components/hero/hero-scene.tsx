@@ -1,8 +1,18 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+
+import { createStudioEnvironmentTexture } from "@/lib/studio-environment";
+
+function StudioEnvironment() {
+  const texture = useMemo(() => createStudioEnvironmentTexture(), []);
+
+  useEffect(() => () => texture.dispose(), [texture]);
+
+  return <primitive attach="environment" object={texture} />;
+}
 
 function Sculpture() {
   const group = useRef<THREE.Group>(null);
@@ -45,6 +55,7 @@ export function HeroScene() {
       <directionalLight color="#f3f1ea" intensity={4.2} position={[4, 5, 6]} castShadow />
       <pointLight color="#a3a3a3" intensity={12} position={[-4, -1, 3]} />
       <pointLight color="#ffffff" intensity={7} position={[0, -4, -2]} />
+      <StudioEnvironment />
       <Sculpture />
     </Canvas>
   );

@@ -1,11 +1,12 @@
 "use client";
 
 import { Component, lazy, Suspense, useEffect, useState, type ErrorInfo, type ReactNode } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 
 import { MagneticLink } from "@/components/ui/magnetic-link";
 import { RevealText } from "@/components/ui/reveal-text";
 import type { PortfolioContent } from "@/content/portfolio";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import { easeOutExpo } from "@/lib/motion";
 import { HeroFallback } from "./hero-fallback";
 
@@ -29,23 +30,28 @@ class HeroSceneBoundary extends Component<{ children: ReactNode }, { failed: boo
   }
 }
 
-function useHeroSceneAvailability(reduceMotion: boolean | null) {
+function useHeroSceneAvailability() {
   const [available, setAvailable] = useState(false);
 
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 768px)");
-    const update = () => setAvailable(desktop.matches && Boolean(window.WebGLRenderingContext) && !reduceMotion);
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setAvailable(desktop.matches && !motionPreference.matches && Boolean(window.WebGLRenderingContext));
     update();
     desktop.addEventListener("change", update);
-    return () => desktop.removeEventListener("change", update);
-  }, [reduceMotion]);
+    motionPreference.addEventListener("change", update);
+    return () => {
+      desktop.removeEventListener("change", update);
+      motionPreference.removeEventListener("change", update);
+    };
+  }, []);
 
   return available;
 }
 
 export function Hero({ content }: HeroProps) {
-  const reduceMotion = useReducedMotion();
-  const showWebGL = useHeroSceneAvailability(reduceMotion);
+  const reduceMotion = useReducedMotionPreference();
+  const showWebGL = useHeroSceneAvailability();
   const words = content.role.trim().split(/\s+/);
   const editorialWord = words.pop() ?? content.role;
   const primaryWords = words.join(" ");
