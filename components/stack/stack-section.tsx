@@ -28,8 +28,8 @@ export function StackSection({ items }: StackSectionProps) {
           </div>
         ) : (
           <>
-            <StackMarquee items={items} direction={1} />
-            <StackMarquee items={[...items].reverse()} direction={-1} />
+            <StackMarquee items={items} direction={1} name="primary" />
+            <StackMarquee items={[...items].reverse()} direction={-1} name="secondary" />
           </>
         )}
       </div>

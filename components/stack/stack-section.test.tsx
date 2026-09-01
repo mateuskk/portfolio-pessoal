@@ -29,9 +29,9 @@ describe("StackSection", () => {
     const user = userEvent.setup();
     render(<StackSection items={["TypeScript", "React", "Next.js"]} />);
 
-    const controls = screen.getAllByRole("button", { name: /pause technology rail/i });
-    expect(controls).toHaveLength(2);
-    await user.click(controls[0]);
-    expect(controls[0]).toHaveAttribute("aria-pressed", "true");
+    const primary = screen.getByRole("button", { name: /pause primary technology rail/i });
+    expect(screen.getByRole("button", { name: /pause secondary technology rail/i })).toBeInTheDocument();
+    await user.click(primary);
+    expect(primary).toHaveAttribute("aria-pressed", "true");
   });
 });

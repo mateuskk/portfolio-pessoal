@@ -8,6 +8,7 @@ import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preferenc
 type StackMarqueeProps = {
   items: string[];
   direction: 1 | -1;
+  name: "primary" | "secondary";
 };
 
 export function getMarqueeStep(deltaMs: number, scrollVelocity: number, direction: 1 | -1) {
@@ -15,7 +16,7 @@ export function getMarqueeStep(deltaMs: number, scrollVelocity: number, directio
   return (deltaMs / 1000) * speed * direction;
 }
 
-export function StackMarquee({ items, direction }: StackMarqueeProps) {
+export function StackMarquee({ items, direction, name }: StackMarqueeProps) {
   const reduceMotion = useReducedMotionPreference();
   const hovered = useRef(false);
   const [focusPaused, setFocusPaused] = useState(false);
@@ -44,7 +45,7 @@ export function StackMarquee({ items, direction }: StackMarqueeProps) {
     >
       <button
         type="button"
-        aria-label={manualPaused ? "Resume technology rail" : "Pause technology rail"}
+        aria-label={`${manualPaused ? "Resume" : "Pause"} ${name} technology rail`}
         aria-pressed={manualPaused}
         className="focus-ring absolute right-3 top-3 z-10 rounded-full border border-white/20 bg-ink/85 px-3 py-2 text-label uppercase text-muted opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 focus:opacity-100"
         onClick={() => setManualPaused((paused) => !paused)}
