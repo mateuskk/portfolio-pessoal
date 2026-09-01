@@ -1,6 +1,14 @@
+import { Navbar } from "@/components/navigation/navbar";
+import { portfolioContent } from "@/content/portfolio";
+
 export default function Home() {
   return (
     <>
+      <Navbar
+        items={portfolioContent.navigation}
+        initials={portfolioContent.person.initials}
+        email={portfolioContent.contact.email}
+      />
       <main id="main-content" className="overflow-clip">
         <section className="relative flex min-h-svh flex-col justify-between px-page pb-10 pt-28 lg:pb-14 lg:pt-36">
           <div className="hairline absolute inset-x-page top-24 lg:top-28" />

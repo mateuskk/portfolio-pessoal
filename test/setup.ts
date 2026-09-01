@@ -26,10 +26,18 @@ class IntersectionObserverStub {
 }
 
 Object.defineProperty(window, "IntersectionObserver", {
+  configurable: true,
   writable: true,
   value: IntersectionObserverStub,
 });
 Object.defineProperty(globalThis, "IntersectionObserver", {
+  configurable: true,
   writable: true,
   value: IntersectionObserverStub,
+});
+
+Object.defineProperty(window, "scrollTo", {
+  configurable: true,
+  writable: true,
+  value: () => undefined,
 });
