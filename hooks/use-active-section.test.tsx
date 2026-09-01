@@ -34,4 +34,24 @@ describe("useActiveSection", () => {
     expect(result.current).toBe("about");
     unmount();
   });
+
+  it("uses the most recently intersecting section when several enter together", () => {
+    document.body.innerHTML = '<section id="about"></section><section id="projects"></section>';
+    vi.stubGlobal("IntersectionObserver", ControlledObserver);
+    const { result } = renderHook(() => useActiveSection(["about", "projects"]));
+    const about = document.getElementById("about")!;
+    const projects = document.getElementById("projects")!;
+
+    act(() => {
+      observerCallback?.(
+        [
+          { target: about, isIntersecting: true, boundingClientRect: { top: 0 } },
+          { target: projects, isIntersecting: true, boundingClientRect: { top: 500 } },
+        ] as unknown as IntersectionObserverEntry[],
+        {} as IntersectionObserver,
+      );
+    });
+
+    expect(result.current).toBe("projects");
+  });
 });

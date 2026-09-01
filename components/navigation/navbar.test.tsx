@@ -19,8 +19,13 @@ describe("Navbar", () => {
     render(<Navbar items={items} initials="SN" email="hello@example.com" />);
 
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "#about");
-    await user.click(screen.getByRole("button", { name: /open menu/i }));
-    expect(screen.getByRole("dialog", { name: /navigation/i })).toBeInTheDocument();
+    expect(screen.getAllByTestId("nav-link-underline")).toHaveLength(items.length);
+    const menuButton = screen.getByRole("button", { name: /open menu/i });
+    expect(menuButton).toHaveAttribute("aria-expanded", "false");
+    await user.click(menuButton);
+    expect(menuButton).toHaveAttribute("aria-expanded", "true");
+    const dialog = screen.getByRole("dialog", { name: /navigation/i });
+    expect(dialog).toHaveClass("inset-x-0", "top-[4.75rem]", "rounded-none");
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("dialog", { name: /navigation/i })).not.toBeInTheDocument();
   });

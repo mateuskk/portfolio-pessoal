@@ -14,10 +14,7 @@ export function useActiveSection(ids: string[]) {
       (entries) => {
         const visible = entries.filter((entry) => entry.isIntersecting);
         if (visible.length === 0) return;
-        const nearest = visible.reduce((current, entry) =>
-          Math.abs(entry.boundingClientRect?.top ?? 0) < Math.abs(current.boundingClientRect?.top ?? 0) ? entry : current,
-        );
-        setActiveSection(nearest.target.id);
+        setActiveSection(visible[visible.length - 1].target.id);
       },
       { rootMargin: "-35% 0px -55%", threshold: [0, 0.25, 0.6] },
     );
