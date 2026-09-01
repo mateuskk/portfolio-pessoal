@@ -1,13 +1,10 @@
 "use client";
 
 import { Component, lazy, Suspense, useEffect, useState, type ErrorInfo, type ReactNode } from "react";
-import { motion } from "motion/react";
 
 import { MagneticLink } from "@/components/ui/magnetic-link";
 import { RevealText } from "@/components/ui/reveal-text";
 import type { PortfolioContent } from "@/content/portfolio";
-import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
-import { easeOutExpo } from "@/lib/motion";
 import { HeroFallback } from "./hero-fallback";
 
 const LazyHeroScene = lazy(() => import("./hero-scene").then((module) => ({ default: module.HeroScene })));
@@ -50,7 +47,6 @@ function useHeroSceneAvailability() {
 }
 
 export function Hero({ content }: HeroProps) {
-  const reduceMotion = useReducedMotionPreference();
   const showWebGL = useHeroSceneAvailability();
   const words = content.role.trim().split(/\s+/);
   const editorialWord = words.pop() ?? content.role;
@@ -74,14 +70,12 @@ export function Hero({ content }: HeroProps) {
             <span className="font-serif font-normal italic tracking-[-0.045em]">{editorialWord}</span>
           </RevealText>
         </h1>
-        <motion.p
+        <RevealText
+          as="p"
           className="mt-8 max-w-sm text-balance text-base leading-relaxed text-muted sm:max-w-md lg:ml-[50%] lg:text-lg"
-          initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={reduceMotion ? { duration: 0 } : { delay: 0.7, duration: 0.72, ease: easeOutExpo }}
         >
           I shape precise digital experiences where technology, typography, and motion move as one.
-        </motion.p>
+        </RevealText>
       </div>
 
       <div

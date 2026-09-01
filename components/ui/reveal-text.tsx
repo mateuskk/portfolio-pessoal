@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import { cn } from "@/lib/utils";
 import { revealItem } from "@/lib/motion";
 
@@ -14,7 +15,7 @@ type RevealTextProps = {
 
 export function RevealText({ children, className, as = "span" }: RevealTextProps) {
   const [mounted, setMounted] = useState(false);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotionPreference();
 
   useEffect(() => setMounted(true), []);
 

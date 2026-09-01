@@ -6,6 +6,23 @@ import { useReducedMotionPreference } from "./use-reduced-motion-preference";
 describe("useReducedMotionPreference", () => {
   afterEach(() => vi.restoreAllMocks());
 
+  it("uses an initially reduced preference on the first render", () => {
+    const renders: boolean[] = [];
+    vi.spyOn(window, "matchMedia").mockReturnValue({
+      matches: true,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+    } as unknown as MediaQueryList);
+
+    renderHook(() => {
+      const preference = useReducedMotionPreference();
+      renders.push(preference);
+      return preference;
+    });
+
+    expect(renders[0]).toBe(true);
+  });
+
   it("reacts when the system motion preference changes and cleans up", () => {
     const listeners = new Set<(event: MediaQueryListEvent) => void>();
     const preference = {

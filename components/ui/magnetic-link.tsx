@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, type PointerEvent } from "react";
-import { motion, type HTMLMotionProps, useReducedMotion } from "motion/react";
+import { motion, type HTMLMotionProps } from "motion/react";
 
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import { cn } from "@/lib/utils";
 import { easeOutExpo } from "@/lib/motion";
 
@@ -21,7 +22,7 @@ export function getMagneticOffset(clientX: number, clientY: number, bounds: Magn
 }
 
 export function MagneticLink({ className, strength = 8, onPointerMove, onPointerLeave, ...props }: MagneticLinkProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotionPreference();
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   function handlePointerMove(event: PointerEvent<HTMLAnchorElement>) {
