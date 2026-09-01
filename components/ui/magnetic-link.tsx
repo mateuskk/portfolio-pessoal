@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type PointerEvent } from "react";
+import { useEffect, useState, type PointerEvent } from "react";
 import { motion, type HTMLMotionProps } from "motion/react";
 
 import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
@@ -12,6 +12,7 @@ type MagneticLinkProps = HTMLMotionProps<"a"> & {
 };
 
 type MagneticBounds = Pick<DOMRect, "left" | "top" | "width" | "height">;
+type MagneticOffset = { x: number; y: number };
 
 export function getMagneticOffset(clientX: number, clientY: number, bounds: MagneticBounds, strength: number) {
   const clamp = (value: number) => Math.max(-8, Math.min(8, value));
@@ -21,9 +22,20 @@ export function getMagneticOffset(clientX: number, clientY: number, bounds: Magn
   };
 }
 
+export function getMagneticMotion(reduceMotion: boolean, offset: MagneticOffset) {
+  return reduceMotion
+    ? { animation: { x: 0, y: 0 }, transition: { duration: 0 } }
+    : { animation: offset, transition: { duration: 0.35, ease: easeOutExpo } };
+}
+
 export function MagneticLink({ className, strength = 8, onPointerMove, onPointerLeave, ...props }: MagneticLinkProps) {
   const reduceMotion = useReducedMotionPreference();
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const magneticMotion = getMagneticMotion(reduceMotion, offset);
+
+  useEffect(() => {
+    if (reduceMotion) setOffset({ x: 0, y: 0 });
+  }, [reduceMotion]);
 
   function handlePointerMove(event: PointerEvent<HTMLAnchorElement>) {
     onPointerMove?.(event);
@@ -42,8 +54,8 @@ export function MagneticLink({ className, strength = 8, onPointerMove, onPointer
     <motion.a
       {...props}
       className={cn("focus-ring", className)}
-      animate={reduceMotion ? undefined : offset}
-      transition={{ duration: 0.35, ease: easeOutExpo }}
+      animate={magneticMotion.animation}
+      transition={magneticMotion.transition}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
     />

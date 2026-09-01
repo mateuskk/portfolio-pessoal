@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { getMagneticOffset, MagneticLink } from "./magnetic-link";
+import { getMagneticMotion, getMagneticOffset, MagneticLink } from "./magnetic-link";
 import { RevealText } from "./reveal-text";
 import { SectionHeading } from "./section-heading";
 
@@ -33,5 +33,12 @@ describe("portfolio primitives", () => {
 
   it("caps magnetic movement at eight pixels even with excessive strength", () => {
     expect(getMagneticOffset(200, 200, { left: 0, top: 0, width: 100, height: 100 }, 40)).toEqual({ x: 8, y: 8 });
+  });
+
+  it("cancels and resets an active magnetic displacement for reduced motion", () => {
+    expect(getMagneticMotion(true, { x: 8, y: -8 })).toEqual({
+      animation: { x: 0, y: 0 },
+      transition: { duration: 0 },
+    });
   });
 });
