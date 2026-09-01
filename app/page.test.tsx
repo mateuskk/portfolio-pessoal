@@ -8,7 +8,7 @@ describe("portfolio shell", () => {
     render(<Home />);
 
     expect(screen.getByRole("main")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /selected work/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: /selected work/i }).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByRole("contentinfo")).toBeInTheDocument();
   });
 });

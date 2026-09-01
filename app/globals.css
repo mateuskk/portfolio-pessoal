@@ -101,9 +101,11 @@ body::before {
   color: var(--ink);
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 }
 
 .px-page { padding-inline: var(--page-gutter); }

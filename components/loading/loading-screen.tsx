@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 
 import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
+import { completeIntro, INTRO_SESSION_KEY } from "@/lib/intro";
 
-const SESSION_KEY = "portfolio-intro-complete";
 const COUNTER_COMPLETE_MS = 875;
 const INTRO_DURATION_MS = 1000;
 const TICK_MS = 25;
@@ -16,8 +16,8 @@ export function LoadingScreen() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    if (reduceMotion || window.sessionStorage.getItem(SESSION_KEY) === "true") {
-      if (reduceMotion) window.sessionStorage.setItem(SESSION_KEY, "true");
+    if (reduceMotion || window.sessionStorage.getItem(INTRO_SESSION_KEY) === "true") {
+      if (reduceMotion) completeIntro();
       return;
     }
 
@@ -33,7 +33,7 @@ export function LoadingScreen() {
     }, COUNTER_COMPLETE_MS);
     const finishTimer = window.setTimeout(() => {
       window.clearInterval(progressTimer);
-      window.sessionStorage.setItem(SESSION_KEY, "true");
+      completeIntro();
       setVisible(false);
     }, INTRO_DURATION_MS);
 
@@ -46,7 +46,7 @@ export function LoadingScreen() {
   }, [reduceMotion]);
 
   if (!visible || reduceMotion) return null;
-  if (window.sessionStorage.getItem(SESSION_KEY) === "true") return null;
+  if (window.sessionStorage.getItem(INTRO_SESSION_KEY) === "true") return null;
 
   return (
     <motion.output

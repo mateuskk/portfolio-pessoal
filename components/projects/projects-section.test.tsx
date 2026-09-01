@@ -1,10 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
 import { progressToProjectIndex } from "@/hooks/use-project-progress";
 import { getProjectTilt, supportsProjectTilt } from "./project-art";
-import { ProjectsSection } from "./projects-section";
+import { findNearestProjectIndex, ProjectsSection } from "./projects-section";
 
 const projects = [
   {
@@ -66,5 +66,21 @@ describe("ProjectsSection", () => {
     expect(supportsProjectTilt("touch", false, true)).toBe(false);
     expect(supportsProjectTilt("mouse", true, true)).toBe(false);
     expect(supportsProjectTilt("mouse", false, true)).toBe(true);
+  });
+
+  it("uses actual card geometry for landscape-tablet carousel state", () => {
+    const cards = [48, 800, 1552, 2304].map((offsetLeft) => ({ offsetLeft, offsetWidth: 736 }));
+
+    expect(findNearestProjectIndex(2168, 920, cards)).toBe(3);
+  });
+
+  it("provides a complete semantic desktop collection independent of the animated stage", () => {
+    render(<ProjectsSection projects={projects} />);
+
+    const list = screen.getByRole("list", { name: "All selected projects" });
+    expect(within(list).getByRole("heading", { name: "Obsidian" })).toBeInTheDocument();
+    expect(within(list).getByRole("heading", { name: "Monolith" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: "Selected work" })).toHaveLength(2);
+    expect(screen.getByTestId("desktop-project-stage").parentElement).not.toHaveAttribute("inert");
   });
 });

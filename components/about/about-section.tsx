@@ -9,7 +9,7 @@ type AboutSectionProps = {
 export function AboutSection({ content }: AboutSectionProps) {
   return (
     <section id="about" className="border-t border-white/15 px-page py-24 sm:py-28 lg:py-40">
-      <SectionHeading index="001" eyebrow="Profile" title="About me" />
+      <SectionHeading eyebrow="Profile" title="About me" />
 
       <div className="mt-16 grid gap-14 lg:mt-24 lg:grid-cols-12 lg:gap-y-24">
         <div className="lg:col-span-7 lg:col-start-4">
@@ -23,9 +23,6 @@ export function AboutSection({ content }: AboutSectionProps) {
             aria-label="Portrait placeholder"
             className="relative aspect-[4/5] overflow-hidden border border-white/15 bg-[radial-gradient(circle_at_62%_28%,rgb(243_241_234/16%),transparent_25%),linear-gradient(145deg,rgb(29_29_29),rgb(9_9_9))]"
           >
-            <div aria-hidden="true" className="absolute inset-x-[12%] top-1/2 h-px bg-white/20" />
-            <div aria-hidden="true" className="absolute inset-y-[10%] left-1/2 w-px bg-white/20" />
-            <div aria-hidden="true" className="absolute inset-[22%] border border-white/10" />
             <figcaption className="absolute inset-x-4 bottom-4 flex justify-between text-label uppercase text-muted-foreground">
               <span>Portrait placeholder</span><span>4:5</span>
             </figcaption>

@@ -13,7 +13,7 @@ export function StackSection({ items }: StackSectionProps) {
 
   return (
     <section id="stack" className="border-t border-white/15 py-24 sm:py-28 lg:py-40">
-      <SectionHeading className="px-page" index="002" eyebrow="Capabilities" title="Stack & tools" />
+      <SectionHeading className="px-page" eyebrow="Capabilities" title="Stack & tools" />
 
       <ul aria-label="Technology stack" className="sr-only">
         {items.map((item) => <li key={item}>{item}</li>)}

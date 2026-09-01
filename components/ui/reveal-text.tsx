@@ -28,12 +28,12 @@ export function RevealText({ children, className, as = "span" }: RevealTextProps
   const MotionElement = motion[as];
   const Wrapper = as === "span" ? "span" : "div";
   return (
-    <Wrapper className="block overflow-hidden">
+    <Wrapper className="block overflow-hidden py-[0.18em] -my-[0.18em]">
       <MotionElement
         className={staticClassName}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.65 }}
+        viewport={{ once: true, amount: "some" }}
         variants={revealItem}
       >
         {children}

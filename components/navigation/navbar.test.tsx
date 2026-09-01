@@ -1,8 +1,8 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { Navbar } from "./navbar";
+import { getNavbarActiveTransition, getNavbarMotionState, Navbar } from "./navbar";
 import { getMobileMenuMotionStyle } from "./mobile-menu";
 
 const items = [
@@ -45,5 +45,33 @@ describe("Navbar", () => {
       clipPath: "none",
       transitionDuration: "0ms",
     });
+  });
+
+  it("holds the signature entrance until the intro finishes and removes motion when requested", () => {
+    expect(getNavbarMotionState(false, false)).toEqual({ initial: false, animate: "hidden" });
+    expect(getNavbarMotionState(false, true)).toEqual({ initial: false, animate: "visible" });
+    expect(getNavbarMotionState(true, false)).toEqual({ initial: false, animate: "visible" });
+    expect(getNavbarActiveTransition(true)).toEqual({ duration: 0 });
+  });
+
+  it("reacts when reduced motion changes while the navbar is mounted", () => {
+    let reduced = false;
+    const listeners = new Set<(event: MediaQueryListEvent) => void>();
+    window.sessionStorage.setItem("portfolio-intro-complete", "true");
+    vi.spyOn(window, "matchMedia").mockImplementation((query) => ({
+      get matches() { return query.includes("prefers-reduced-motion: reduce") && reduced; },
+      addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => listeners.add(listener),
+      removeEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => listeners.delete(listener),
+    }) as unknown as MediaQueryList);
+
+    render(<Navbar items={items} initials="SN" email="hello@example.com" />);
+    expect(screen.getByRole("navigation", { name: /primary/i })).toHaveAttribute("data-reduced-motion", "false");
+
+    act(() => {
+      reduced = true;
+      listeners.forEach((listener) => listener({ matches: true } as MediaQueryListEvent));
+    });
+
+    expect(screen.getByRole("navigation", { name: /primary/i })).toHaveAttribute("data-reduced-motion", "true");
   });
 });

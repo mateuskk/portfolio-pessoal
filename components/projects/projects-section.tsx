@@ -2,7 +2,7 @@
 
 /* oxlint-disable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex -- The carousel region is intentionally focusable for arrow-key navigation. */
 
-import { useRef, useState, useSyncExternalStore, type KeyboardEvent, type UIEvent } from "react";
+import { useRef, useState, type KeyboardEvent, type UIEvent } from "react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
 import type { Project } from "@/content/portfolio";
@@ -15,16 +15,18 @@ type ProjectsSectionProps = {
   projects: Project[];
 };
 
-function useDesktopProjects() {
-  return useSyncExternalStore(
-    (onChange) => {
-      const media = window.matchMedia("(min-width: 1024px)");
-      media.addEventListener("change", onChange);
-      return () => media.removeEventListener("change", onChange);
-    },
-    () => window.matchMedia("(min-width: 1024px)").matches,
-    () => false,
-  );
+type ProjectCardGeometry = Pick<HTMLElement, "offsetLeft" | "offsetWidth">;
+
+export function findNearestProjectIndex(scrollLeft: number, viewportWidth: number, cards: ProjectCardGeometry[]) {
+  if (cards.length === 0) return 0;
+
+  const viewportCenter = scrollLeft + viewportWidth / 2;
+  return cards.reduce((nearestIndex, card, index) => {
+    const nearestCard = cards[nearestIndex];
+    const cardDistance = Math.abs(card.offsetLeft + card.offsetWidth / 2 - viewportCenter);
+    const nearestDistance = Math.abs(nearestCard.offsetLeft + nearestCard.offsetWidth / 2 - viewportCenter);
+    return cardDistance < nearestDistance ? index : nearestIndex;
+  }, 0);
 }
 
 export function ProjectsSection({ projects }: ProjectsSectionProps) {
@@ -32,7 +34,6 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   const [mobileIndex, setMobileIndex] = useState(0);
   const railRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotionPreference();
-  const desktop = useDesktopProjects();
   const lastIndex = Math.max(0, projects.length - 1);
 
   const goToProject = (requestedIndex: number) => {
@@ -46,8 +47,9 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
 
   const updateFromScroll = (event: UIEvent<HTMLDivElement>) => {
     const rail = event.currentTarget;
-    if (rail.clientWidth === 0) return;
-    setMobileIndex(Math.min(lastIndex, Math.max(0, Math.round(rail.scrollLeft / rail.clientWidth))));
+    const cards = Array.from(rail.children).filter((card): card is HTMLElement => card instanceof HTMLElement);
+    if (rail.clientWidth === 0 || cards.length === 0) return;
+    setMobileIndex(Math.min(lastIndex, findNearestProjectIndex(rail.scrollLeft, rail.clientWidth, cards)));
   };
 
   const handleKeys = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -64,16 +66,34 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   return (
     <section id="projects" className="border-t border-white/15 py-24 sm:py-28 lg:py-0" ref={containerRef}>
       <div className="px-page lg:hidden">
-        <SectionHeading index="003" eyebrow="Projects" title="Selected work" />
+        <SectionHeading eyebrow="Projects" title="Selected work" />
       </div>
 
-      <div className="hidden lg:block lg:h-[400vh]" aria-hidden={!desktop} inert={!desktop}>
+      <div className="hidden lg:block lg:h-[400vh]">
         <div className="sticky top-0 h-screen overflow-hidden px-page">
-          <ProjectStage activeIndex={activeIndex} projects={projects} />
+          <h2 className="sr-only">Selected work</h2>
+          <div className="sr-only focus-within:not-sr-only focus-within:absolute focus-within:left-[var(--page-gutter)] focus-within:top-24 focus-within:z-[80] focus-within:max-h-[calc(100vh-7rem)] focus-within:w-[min(34rem,calc(100vw-(var(--page-gutter)*2)))] focus-within:overflow-auto focus-within:border focus-within:border-white/20 focus-within:bg-ink focus-within:p-6 focus-within:text-paper">
+            <ol aria-label="All selected projects">
+              {projects.map((project) => (
+                <li key={project.slug}>
+                  <article>
+                    <p>{project.role} / {project.year}</p>
+                    <h3>{project.title}</h3>
+                    <p>{project.summary}</p>
+                    <p>{project.stack.join(", ")}</p>
+                    {project.href ? <a href={project.href}>View {project.title} case study</a> : <span>Case study coming soon</span>}
+                  </article>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div aria-hidden="true" className="h-full">
+            <ProjectStage activeIndex={activeIndex} decorative projects={projects} />
+          </div>
         </div>
       </div>
 
-      <div className="mt-16 lg:hidden" aria-hidden={desktop} inert={desktop}>
+      <div className="mt-16 lg:hidden">
         <section
           aria-label="Selected projects"
           aria-roledescription="carousel"

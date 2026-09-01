@@ -7,9 +7,9 @@ import { SectionHeading } from "./section-heading";
 
 describe("portfolio primitives", () => {
   it("exposes section context as a named heading", () => {
-    render(<SectionHeading index="001" eyebrow="Profile" title="About me" />);
+    render(<SectionHeading eyebrow="Profile" title="About me" />);
 
-    expect(screen.getByText("[ 001 ]")).toBeInTheDocument();
+    expect(screen.getByText("Profile")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "About me" })).toHaveClass("font-serif");
   });
 

@@ -1,10 +1,11 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { motion, stagger, useReducedMotion } from "motion/react";
+import { motion, stagger } from "motion/react";
 
 import type { NavItem } from "@/content/portfolio";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import { easeOutExpo } from "@/lib/motion";
 
 type MobileMenuProps = {
@@ -18,7 +19,7 @@ export function getMobileMenuMotionStyle(reduceMotion: boolean | null): CSSPrope
 }
 
 export function MobileMenu({ items, open, onOpenChange }: MobileMenuProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotionPreference();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -62,7 +63,7 @@ export function MobileMenu({ items, open, onOpenChange }: MobileMenuProps) {
               closed: { transition: { delayChildren: stagger(0.035, { from: "last" }) } },
             }}
           >
-            {items.map((item, index) => (
+            {items.map((item) => (
               <motion.li
                 key={item.href}
                 className="border-b border-white/15"
@@ -73,11 +74,10 @@ export function MobileMenu({ items, open, onOpenChange }: MobileMenuProps) {
               >
                 <a
                   href={item.href}
-                  className="focus-ring flex items-baseline justify-between py-5 text-[clamp(2.7rem,14vw,5.5rem)] leading-none tracking-[-0.055em]"
+                  className="focus-ring block py-5 text-[clamp(2.7rem,14vw,5.5rem)] leading-none tracking-[-0.055em]"
                   onClick={() => onOpenChange(false)}
                 >
-                  <span>{item.label}</span>
-                  <span className="text-label text-muted-foreground">0{index + 1}</span>
+                  {item.label}
                 </a>
               </motion.li>
             ))}

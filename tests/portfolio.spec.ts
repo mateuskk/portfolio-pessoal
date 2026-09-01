@@ -4,6 +4,7 @@ import { expect, test } from "@playwright/test";
 const viewports = [
   { name: "phone", width: 390, height: 844 },
   { name: "tablet", width: 820, height: 1180 },
+  { name: "tablet landscape", width: 960, height: 800 },
   { name: "laptop", width: 1440, height: 900 },
   { name: "wide", width: 1920, height: 1080 },
 ];
@@ -23,6 +24,18 @@ for (const viewport of viewports) {
   });
 }
 
+test("opening motion begins after the loading transition", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+
+  const loader = page.getByRole("status", { name: /loading portfolio/i });
+  const navbar = page.getByRole("navigation", { name: /primary navigation/i });
+  await expect(loader).toBeVisible();
+  await expect(navbar).toHaveCSS("opacity", "0");
+  await expect(loader).toBeHidden();
+  await expect(navbar).toHaveCSS("opacity", "1");
+});
+
 test("mobile navigation and projects remain directly operable", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
@@ -37,6 +50,21 @@ test("mobile navigation and projects remain directly operable", async ({ page })
   await page.locator("#projects").scrollIntoViewIfNeeded();
   await page.getByRole("button", { name: /next project/i }).click();
   await expect(page.getByRole("article", { name: "Monolith" })).toHaveAttribute("aria-current", "true");
+});
+
+test("landscape tablet tracks the nearest capped project card", async ({ page }) => {
+  await page.setViewportSize({ width: 960, height: 800 });
+  await page.goto("/");
+  await expect(page.getByRole("status", { name: /loading portfolio/i })).toBeHidden();
+
+  const carousel = page.getByRole("region", { name: /selected projects/i });
+  await carousel.evaluate((rail) => {
+    rail.scrollTo({ left: rail.scrollWidth, behavior: "instant" });
+    rail.dispatchEvent(new Event("scroll"));
+  });
+
+  await expect(page.getByText("Project 04 / 04")).toBeVisible();
+  await expect(page.getByRole("button", { name: /next project/i })).toBeDisabled();
 });
 
 test("desktop retains the complete sticky project narrative", async ({ page }) => {
@@ -54,13 +82,16 @@ test("desktop retains the complete sticky project narrative", async ({ page }) =
   expect(geometry.height).toBeGreaterThanOrEqual(3500);
   expect(geometry.stickyPosition).toBe("sticky");
 
-  await expect(page.getByRole("article", { name: "Obsidian" })).toBeVisible();
+  const stage = page.getByTestId("desktop-project-stage");
+  await expect(page.getByRole("heading", { level: 2, name: "Selected work" })).toHaveCount(1);
+  await expect(page.getByRole("list", { name: "All selected projects" })).toHaveCount(1);
+  await expect(stage).toHaveAttribute("data-active-project", "obsidian");
   await page.locator("#projects").evaluate((section) => {
     const top = window.scrollY + section.getBoundingClientRect().top;
     const range = section.getBoundingClientRect().height - window.innerHeight;
     window.scrollTo({ top: top + range * 0.6, behavior: "instant" });
   });
-  await expect(page.getByRole("article", { name: "Forma" })).toBeVisible();
+  await expect(stage).toHaveAttribute("data-active-project", "forma");
 });
 
 test("reduced motion keeps essential content visible and skips the intro", async ({ page }) => {
@@ -88,7 +119,7 @@ test("keyboard users reach the skip link first", async ({ page }) => {
   await expect(page.locator("#main-content")).toBeFocused();
 });
 
-for (const viewport of [viewports[0], viewports[2]]) {
+for (const viewport of [viewports[0], viewports[3]]) {
   test(`${viewport.name} has no automated WCAG A or AA violations`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.emulateMedia({ reducedMotion: "reduce" });

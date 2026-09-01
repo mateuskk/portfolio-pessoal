@@ -1,6 +1,6 @@
 "use client";
 
-import { Component, lazy, Suspense, useEffect, useState, type ErrorInfo, type ReactNode } from "react";
+import { Component, lazy, Suspense, useEffect, useRef, useState, type ErrorInfo, type ReactNode } from "react";
 
 import { MagneticLink } from "@/components/ui/magnetic-link";
 import { RevealText } from "@/components/ui/reveal-text";
@@ -46,8 +46,25 @@ function useHeroSceneAvailability() {
   return available;
 }
 
+function useInView(active: boolean) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(true);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!active || !node) return;
+
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0 });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [active]);
+
+  return { ref, inView };
+}
+
 export function Hero({ content }: HeroProps) {
   const showWebGL = useHeroSceneAvailability();
+  const { ref: visualRef, inView } = useInView(showWebGL);
   const words = content.role.trim().split(/\s+/);
   const editorialWord = words.pop() ?? content.role;
   const primaryWords = words.join(" ");
@@ -55,15 +72,9 @@ export function Hero({ content }: HeroProps) {
   return (
     <section className="relative isolate grid min-h-svh overflow-hidden px-page pb-10 pt-28 lg:min-h-[100svh] lg:grid-cols-12 lg:grid-rows-[auto_1fr_auto] lg:pb-14 lg:pt-36" aria-labelledby="hero-title">
       <div className="hairline absolute inset-x-page top-24 lg:top-28" />
-      <div className="relative z-20 grid gap-5 text-label uppercase lg:col-span-12 lg:grid-cols-12">
-        <RevealText as="p" className="lg:col-span-3">Portfolio / 2026</RevealText>
-        <RevealText as="p" className="text-muted-foreground lg:col-span-4 lg:col-start-9 lg:text-right">
-          {content.location}<br />{content.availability}
-        </RevealText>
-      </div>
 
       <div className="relative z-20 my-auto py-16 sm:py-20 lg:col-span-10 lg:py-24">
-        <RevealText as="p" className="mb-5 text-label uppercase text-muted-foreground">{content.name} — Digital craft</RevealText>
+        <RevealText as="p" className="mb-5 text-label uppercase text-muted-foreground">{content.name}</RevealText>
         <h1 id="hero-title" className="max-w-[11ch] text-display font-medium leading-[0.82] tracking-[-0.07em]">
           <RevealText>{primaryWords}&nbsp;</RevealText>
           <RevealText>
@@ -79,6 +90,7 @@ export function Hero({ content }: HeroProps) {
       </div>
 
       <div
+        ref={visualRef}
         data-testid="hero-visual"
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-[-18vw] bottom-[8%] top-[18%] z-0 opacity-70 sm:inset-x-[18%] sm:bottom-[2%] sm:top-[15%] lg:inset-y-[9%] lg:left-[43%] lg:right-[-3%] lg:opacity-90"
@@ -87,7 +99,7 @@ export function Hero({ content }: HeroProps) {
         {showWebGL ? (
           <HeroSceneBoundary>
             <Suspense fallback={<HeroFallback />}>
-              <LazyHeroScene />
+              <LazyHeroScene inView={inView} />
             </Suspense>
           </HeroSceneBoundary>
         ) : (
@@ -100,11 +112,7 @@ export function Hero({ content }: HeroProps) {
           <span className="grid size-9 place-items-center rounded-full border border-white/25 transition-colors group-hover:bg-paper group-hover:text-ink">↓</span>
           Explore projects
         </MagneticLink>
-        <p className="text-muted-foreground lg:col-span-3 lg:col-start-10 lg:text-right">Scroll to discover</p>
       </div>
-
-      <div className="absolute bottom-0 left-[33.333%] top-0 hidden w-px bg-white/[0.06] lg:block" />
-      <div className="absolute bottom-0 left-[75%] top-0 hidden w-px bg-white/[0.06] lg:block" />
     </section>
   );
 }

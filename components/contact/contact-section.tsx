@@ -16,10 +16,7 @@ export function ContactSection({ contact }: ContactSectionProps) {
     <section id="contact" className="relative overflow-hidden bg-paper px-page py-24 text-ink sm:py-28 lg:py-40">
       <div aria-hidden="true" className="absolute inset-x-page top-0 h-px bg-black/20" />
       <div className="grid gap-16 lg:grid-cols-12 lg:gap-y-28">
-        <div className="flex items-start gap-5 text-label uppercase text-black/55 lg:col-span-3">
-          <span aria-hidden="true">[ 004 ]</span>
-          <span>Contact</span>
-        </div>
+        <p className="text-label uppercase text-black/55 lg:col-span-3">Contact</p>
 
         <h2 className="lg:col-span-9">
           <RevealText className="max-w-[12ch] font-serif text-[clamp(4rem,9vw,10rem)] leading-[0.82] tracking-[-0.065em]">

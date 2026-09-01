@@ -9,9 +9,10 @@ import { ProjectArt } from "./project-art";
 type ProjectStageProps = {
   activeIndex: number;
   projects: Project[];
+  decorative?: boolean;
 };
 
-export function ProjectStage({ activeIndex, projects }: ProjectStageProps) {
+export function ProjectStage({ activeIndex, projects, decorative = false }: ProjectStageProps) {
   const reduceMotion = useReducedMotionPreference();
   const project = projects[activeIndex];
 
@@ -21,7 +22,7 @@ export function ProjectStage({ activeIndex, projects }: ProjectStageProps) {
   const headingId = `desktop-project-${project.slug}-title`;
 
   return (
-    <div className="grid h-full min-h-0 grid-cols-12 gap-8 py-6 xl:py-10">
+    <div className="grid h-full min-h-0 grid-cols-12 gap-8 py-6 xl:py-10" data-active-project={project.slug} data-testid="desktop-project-stage">
       <div className="col-span-1 flex flex-col justify-center gap-4" aria-hidden="true">
         {projects.map((item, index) => (
           <div key={item.slug} className="flex items-center gap-3 text-[0.58rem] tracking-[0.14em]">
@@ -61,8 +62,10 @@ export function ProjectStage({ activeIndex, projects }: ProjectStageProps) {
               </ul>
             </div>
             <div className="flex items-end justify-between gap-5 text-label uppercase">
-              {project.href ? (
+              {project.href && !decorative ? (
                 <a className="focus-ring border-b border-white/40 pb-1" href={project.href}>View case study ↗</a>
+              ) : project.href ? (
+                <span className="border-b border-white/40 pb-1">View case study ↗</span>
               ) : (
                 <span className="text-muted-foreground">Case study / Soon</span>
               )}

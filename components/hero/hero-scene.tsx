@@ -42,12 +42,17 @@ function Sculpture() {
   );
 }
 
-export function HeroScene() {
+type HeroSceneProps = {
+  inView?: boolean;
+};
+
+export function HeroScene({ inView = true }: HeroSceneProps) {
   return (
     <Canvas
       aria-hidden="true"
       camera={{ fov: 35, position: [0, 0, 5.2] }}
       dpr={[1, 1.5]}
+      frameloop={inView ? "always" : "never"}
       gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
       shadows
     >
