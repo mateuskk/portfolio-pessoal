@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { motion, stagger, useReducedMotion } from "motion/react";
 
 import type { NavItem } from "@/content/portfolio";
@@ -11,6 +12,10 @@ type MobileMenuProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
+
+export function getMobileMenuMotionStyle(reduceMotion: boolean | null): CSSProperties | undefined {
+  return reduceMotion ? { clipPath: "none", transitionDuration: "0ms" } : undefined;
+}
 
 export function MobileMenu({ items, open, onOpenChange }: MobileMenuProps) {
   const reduceMotion = useReducedMotion();
@@ -43,6 +48,7 @@ export function MobileMenu({ items, open, onOpenChange }: MobileMenuProps) {
 
       <DialogContent
         showCloseButton={false}
+        style={getMobileMenuMotionStyle(reduceMotion)}
         className="fixed inset-x-0 bottom-0 top-[4.75rem] z-[60] flex max-w-none translate-x-0 translate-y-0 flex-col justify-end overflow-hidden rounded-none border-x-0 border-b-0 border-white/15 bg-ink px-6 pb-8 pt-16 text-paper shadow-2xl ring-0 transition-[clip-path,opacity] duration-500 ease-expo-out data-open:animate-none data-closed:animate-none data-starting-style:opacity-80 data-ending-style:opacity-80 data-starting-style:[clip-path:inset(0_0_100%_0)] data-ending-style:[clip-path:inset(0_0_100%_0)] md:hidden"
       >
         <DialogTitle className="sr-only">Navigation</DialogTitle>

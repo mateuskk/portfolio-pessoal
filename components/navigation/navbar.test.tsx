@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { Navbar } from "./navbar";
+import { getMobileMenuMotionStyle } from "./mobile-menu";
 
 const items = [
   { label: "About", href: "#about" as const },
@@ -37,5 +38,12 @@ describe("Navbar", () => {
     fireEvent.scroll(window);
 
     expect(screen.getByRole("navigation")).toHaveAttribute("data-compact", "true");
+  });
+
+  it("makes the mobile panel transition immediate for reduced motion", () => {
+    expect(getMobileMenuMotionStyle(true)).toEqual({
+      clipPath: "none",
+      transitionDuration: "0ms",
+    });
   });
 });
