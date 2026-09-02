@@ -3,7 +3,7 @@ import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { startIntro } from "@/lib/intro";
-import { getLoadingOverlayAnimation, LoadingScreen } from "./loading-screen";
+import { getLoadingPanelAnimation, LoadingScreen } from "./loading-screen";
 
 describe("LoadingScreen", () => {
   beforeEach(() => {
@@ -32,18 +32,19 @@ describe("LoadingScreen", () => {
   it("covers the first render with an opaque ink layer before any effects run", () => {
     render(<LoadingScreen />);
 
-    expect(screen.getByRole("status", { name: /loading portfolio/i })).toHaveClass("bg-ink");
+    const panels = screen.getAllByTestId("loading-panel");
+    expect(panels).toHaveLength(2);
+    panels.forEach((panel) => expect(panel).toHaveClass("bg-ink"));
   });
 
   it("renders the opaque loading layer during server rendering", () => {
     expect(renderToString(<LoadingScreen />)).toContain("bg-ink");
   });
 
-  it("releases the page with a clip transition instead of a blurred fade", () => {
-    expect(getLoadingOverlayAnimation("leaving")).toEqual({
-      clipPath: "inset(0 0 100% 0)",
-      opacity: 1,
-    });
+  it("releases the page by splitting the opaque panels from the center", () => {
+    expect(getLoadingPanelAnimation("left", "leaving")).toEqual({ x: "-101%" });
+    expect(getLoadingPanelAnimation("right", "leaving")).toEqual({ x: "101%" });
+    expect(getLoadingPanelAnimation("left", "filling")).toEqual({ x: "0%" });
   });
 
   it("starts a new sequence when the page root mounts again", async () => {

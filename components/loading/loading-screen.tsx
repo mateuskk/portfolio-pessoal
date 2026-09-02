@@ -8,14 +8,14 @@ import { completeIntro, isIntroComplete, startIntro } from "@/lib/intro";
 import { easeOutExpo } from "@/lib/motion";
 
 const FILL_DURATION_MS = 2600;
-const LEAVE_DURATION_MS = 700;
+const LEAVE_DURATION_MS = 900;
 
 export type LoadingStage = "hidden" | "filling" | "leaving";
+type LoadingPanelSide = "left" | "right";
 
-export function getLoadingOverlayAnimation(stage: LoadingStage) {
-  return stage === "leaving"
-    ? { clipPath: "inset(0 0 100% 0)", opacity: 1 }
-    : { clipPath: "inset(0 0 0% 0)", opacity: 1 };
+export function getLoadingPanelAnimation(side: LoadingPanelSide, stage: LoadingStage) {
+  if (stage !== "leaving") return { x: "0%" };
+  return { x: side === "left" ? "-101%" : "101%" };
 }
 
 export function LoadingScreen() {
@@ -51,12 +51,31 @@ export function LoadingScreen() {
   return (
     <motion.output
       aria-label="Loading portfolio"
-      className="pointer-events-none fixed inset-0 z-[200] grid place-items-center bg-ink"
+      className="pointer-events-none fixed inset-0 z-[200] overflow-hidden"
       initial={false}
-      animate={getLoadingOverlayAnimation(stage)}
-      transition={{ duration: LEAVE_DURATION_MS / 1000, ease: easeOutExpo }}
     >
-      <LoadingMark filled={stage === "filling" || stage === "leaving"} />
+      {(["left", "right"] as const).map((side) => (
+        <motion.span
+          key={side}
+          aria-hidden="true"
+          data-testid="loading-panel"
+          className={`absolute inset-y-0 bg-ink will-change-transform ${
+            side === "left" ? "left-0 w-[calc(50%+1px)]" : "right-0 w-[calc(50%+1px)]"
+          }`}
+          animate={getLoadingPanelAnimation(side, stage)}
+          initial={false}
+          transition={{ duration: LEAVE_DURATION_MS / 1000, ease: easeOutExpo }}
+        />
+      ))}
+
+      <motion.div
+        className="absolute inset-0 z-10 grid place-items-center"
+        initial={{ opacity: 0, scale: 0.94 }}
+        animate={stage === "leaving" ? { opacity: 0, scale: 0.97 } : { opacity: 1, scale: 1 }}
+        transition={{ duration: stage === "leaving" ? 0.25 : 0.5, ease: easeOutExpo }}
+      >
+        <LoadingMark filled={stage === "filling" || stage === "leaving"} />
+      </motion.div>
     </motion.output>
   );
 }

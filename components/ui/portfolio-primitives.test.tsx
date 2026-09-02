@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { getMagneticMotion, getMagneticOffset, MagneticLink } from "./magnetic-link";
 import { RevealText } from "./reveal-text";
 import { SectionHeading } from "./section-heading";
-import { introRevealItem, revealItem } from "@/lib/motion";
+import { getIntroRevealItem, introRevealItem, revealItem } from "@/lib/motion";
 
 describe("portfolio primitives", () => {
   it("exposes section context as a named heading", () => {
@@ -44,7 +44,15 @@ describe("portfolio primitives", () => {
   });
 
   it("keeps blur reserved for text reveal states", () => {
-    expect(revealItem.hidden).toMatchObject({ filter: "blur(10px)" });
-    expect(introRevealItem.hidden).toMatchObject({ filter: "blur(12px)" });
+    expect(revealItem.hidden).toMatchObject({ opacity: 0.08, x: -40, filter: "blur(10px)" });
+    expect(introRevealItem.hidden).toMatchObject({ opacity: 0, x: -56, filter: "blur(12px)" });
+    expect(revealItem.hidden).not.toHaveProperty("y");
+    expect(introRevealItem.hidden).not.toHaveProperty("y");
+  });
+
+  it("can stagger intro text without delaying the loader or the page container", () => {
+    expect(getIntroRevealItem(0.24).visible).toMatchObject({
+      transition: { delay: 0.24 },
+    });
   });
 });

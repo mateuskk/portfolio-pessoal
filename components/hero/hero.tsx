@@ -75,12 +75,21 @@ const getHeroItem = (reduceMotion: boolean) => ({
   },
 });
 
+export function getHeroVisualAnimation(reduceMotion: boolean) {
+  return {
+    initial: reduceMotion ? false as const : { opacity: 0, clipPath: "inset(0 0 0 18%)" },
+    animate: { opacity: 1, clipPath: "inset(0 0 0 0%)" },
+    transition: { duration: reduceMotion ? 0 : 1.05, ease: easeOutExpo, delay: reduceMotion ? 0 : 0.12 },
+  };
+}
+
 export function Hero({ content }: HeroProps) {
   const showWebGL = useHeroSceneAvailability();
   const { ref: visualRef, inView } = useInView(showWebGL);
   const reduceMotion = useReducedMotionPreference();
   const introReady = useIntroReady();
   const heroItemVariants = useMemo(() => getHeroItem(reduceMotion), [reduceMotion]);
+  const heroVisualAnimation = useMemo(() => getHeroVisualAnimation(reduceMotion), [reduceMotion]);
   const words = content.role.trim().split(/\s+/);
   const editorialWord = words.pop() ?? content.role;
   const primaryWords = words.join(" ");
@@ -93,13 +102,14 @@ export function Hero({ content }: HeroProps) {
       <div className="relative z-20 my-auto py-16 sm:py-20 lg:col-span-10 lg:py-24">
         <RevealText as="p" trigger="intro" className="mb-5 text-label uppercase text-muted-foreground">{content.name}</RevealText>
         <h1 id="hero-title" className="max-w-[11ch] text-display font-medium leading-[0.82] tracking-[-0.07em]">
-          <RevealText trigger="intro">{primaryWords}&nbsp;</RevealText>
-          <RevealText trigger="intro">
+          <RevealText delay={0.08} trigger="intro">{primaryWords}&nbsp;</RevealText>
+          <RevealText delay={0.16} trigger="intro">
             <span className="font-serif font-normal italic tracking-[-0.045em]">{editorialWord}</span>
           </RevealText>
         </h1>
         <RevealText
           as="p"
+          delay={0.28}
           trigger="intro"
           className="mt-8 max-w-sm text-balance text-base leading-relaxed text-muted-foreground sm:max-w-md lg:ml-[50%] lg:text-lg"
         >
@@ -115,10 +125,10 @@ export function Hero({ content }: HeroProps) {
       >
         {revealed && (
           <motion.div
+            data-testid="hero-visual-reveal"
             className="relative size-full [&_canvas]:!h-full [&_canvas]:!w-full"
-            initial={reduceMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: reduceMotion ? 0 : 0.9, ease: easeOutExpo, delay: reduceMotion ? 0 : 0.3 }}
+            style={{ willChange: "clip-path, opacity" }}
+            {...heroVisualAnimation}
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgb(243_241_234/9%),transparent_58%)]" />
             {showWebGL ? (

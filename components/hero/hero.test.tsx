@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { Hero } from "./hero";
+import { getHeroVisualAnimation, Hero } from "./hero";
 
 describe("Hero", () => {
   afterEach(() => vi.restoreAllMocks());
@@ -60,5 +60,14 @@ describe("Hero", () => {
     expect(heading).toHaveClass("text-display", "font-medium");
     expect(heading.parentElement).not.toHaveStyle({ transform: "translateY(18px)" });
     expect(screen.getByText("Developer")).toHaveClass("font-serif", "italic");
+  });
+
+  it("reveals the 3D stage with a clean mask and never scales its canvas container", () => {
+    const animation = getHeroVisualAnimation(false);
+
+    expect(animation.initial).toEqual({ opacity: 0, clipPath: "inset(0 0 0 18%)" });
+    expect(animation.animate).toEqual({ opacity: 1, clipPath: "inset(0 0 0 0%)" });
+    expect(animation.initial).not.toHaveProperty("scale");
+    expect(animation.animate).not.toHaveProperty("scale");
   });
 });

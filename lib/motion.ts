@@ -17,20 +17,25 @@ export const revealContainer: Variants = {
 };
 
 export const revealItem: Variants = {
-  hidden: { opacity: 0.35, y: "28%", filter: "blur(10px)" },
+  hidden: { opacity: 0.08, x: -40, filter: "blur(10px)" },
   visible: {
     opacity: 1,
-    y: "0%",
+    x: 0,
     filter: "blur(0px)",
     transition: weightedTransition,
   },
 };
 
-export const introRevealItem: Variants = {
-  hidden: { y: 14, filter: "blur(12px)" },
-  visible: {
-    y: 0,
-    filter: "blur(0px)",
-    transition: { duration: 0.75, ease: easeOutExpo },
-  },
-};
+export function getIntroRevealItem(delay = 0): Variants {
+  return {
+    hidden: { opacity: 0, x: -56, filter: "blur(12px)" },
+    visible: {
+      opacity: 1,
+      x: 0,
+      filter: "blur(0px)",
+      transition: { duration: 0.85, ease: easeOutExpo, delay },
+    },
+  };
+}
+
+export const introRevealItem = getIntroRevealItem();
