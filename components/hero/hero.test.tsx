@@ -43,4 +43,22 @@ describe("Hero", () => {
 
     expect(screen.getByText(/I shape precise digital experiences/i)).not.toHaveStyle({ opacity: "0" });
   });
+
+  it("keeps the original typography container free from layout transforms", () => {
+    render(
+      <Hero
+        content={{
+          name: "Seu Nome",
+          role: "Creative Developer",
+          location: "São Paulo, BR",
+          availability: "Available for selected projects",
+        }}
+      />,
+    );
+
+    const heading = screen.getByRole("heading", { level: 1 });
+    expect(heading).toHaveClass("text-display", "font-medium");
+    expect(heading.parentElement).not.toHaveStyle({ transform: "translateY(18px)" });
+    expect(screen.getByText("Developer")).toHaveClass("font-serif", "italic");
+  });
 });

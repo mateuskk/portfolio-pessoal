@@ -40,6 +40,34 @@ test("opening motion begins after the loading transition", async ({ page }) => {
   await expect(navbar).toHaveCSS("opacity", "1");
 });
 
+test("desktop 3D canvas keeps filling its stage after the intro", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.getByRole("status", { name: /loading portfolio/i })).toBeHidden();
+
+  const canvas = page.getByTestId("hero-visual").locator("canvas");
+  await expect(canvas).toBeVisible();
+
+  const uncoveredSpace = await canvas.evaluate((element) => {
+    const canvasRect = element.getBoundingClientRect();
+    const stageRect = element.parentElement?.getBoundingClientRect();
+    if (!stageRect) {
+      return {
+        bottom: Number.POSITIVE_INFINITY,
+        right: Number.POSITIVE_INFINITY,
+      };
+    }
+
+    return {
+      bottom: Math.abs(stageRect.bottom - canvasRect.bottom),
+      right: Math.abs(stageRect.right - canvasRect.right),
+    };
+  });
+
+  expect(uncoveredSpace.bottom).toBeLessThanOrEqual(1);
+  expect(uncoveredSpace.right).toBeLessThanOrEqual(1);
+});
+
 test("mobile navigation and projects remain directly operable", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
