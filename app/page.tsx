@@ -1,14 +1,13 @@
-import { AboutSection } from "@/components/about/about-section";
-import { ContactSection } from "@/components/contact/contact-section";
-import { SiteFooter } from "@/components/footer/site-footer";
-import { Hero } from "@/components/hero/hero";
-import { LoadingScreen } from "@/components/loading/loading-screen";
-import { Navbar } from "@/components/navigation/navbar";
-import { SkipLink } from "@/components/navigation/skip-link";
-import { ProjectsSection } from "@/components/projects/projects-section";
-import { SmoothScrollProvider } from "@/components/providers/smooth-scroll-provider";
-import { StackSection } from "@/components/stack/stack-section";
-import { portfolioContent } from "@/content/portfolio";
+import { ContactSection } from '@/components/contact/contact-section';
+import { SiteFooter } from '@/components/footer/site-footer';
+import { HeroAboutTransition } from '@/components/hero/hero-about-transition';
+import { LoadingScreen } from '@/components/loading/loading-screen';
+import { Navbar } from '@/components/navigation/navbar';
+import { SkipLink } from '@/components/navigation/skip-link';
+import { ProjectsSection } from '@/components/projects/projects-section';
+import { SmoothScrollProvider } from '@/components/providers/smooth-scroll-provider';
+import { StackSection } from '@/components/stack/stack-section';
+import { portfolioContent } from '@/content/portfolio';
 
 export default function Home() {
   return (
@@ -21,14 +20,19 @@ export default function Home() {
         email={portfolioContent.contact.email}
       />
       <main id="main-content" className="overflow-clip" tabIndex={-1}>
-        <Hero content={portfolioContent.person} />
-        <AboutSection content={{ ...portfolioContent.about, availability: portfolioContent.person.availability }} />
+        <HeroAboutTransition
+          person={portfolioContent.person}
+          about={portfolioContent.about}
+        />
         <StackSection items={portfolioContent.stack} />
         <ProjectsSection projects={portfolioContent.projects} />
         <ContactSection contact={portfolioContent.contact} />
       </main>
 
-      <SiteFooter name={portfolioContent.person.name} location={portfolioContent.person.location} />
+      <SiteFooter
+        name={portfolioContent.person.name}
+        location={portfolioContent.person.location}
+      />
     </SmoothScrollProvider>
   );
 }
