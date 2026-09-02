@@ -17,8 +17,8 @@ export function AboutSection({ content, tone = 'dark' }: AboutSectionProps) {
       id="about"
       data-tone={tone}
       className={cn(
-        'border-t px-page py-24 sm:py-28 lg:py-40',
-        paper ? 'border-black/15 text-ink' : 'border-white/15',
+        'px-page py-24 sm:py-28 lg:py-40',
+        paper ? 'text-ink' : 'border-t border-white/15',
       )}
     >
       <SectionHeading

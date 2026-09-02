@@ -75,7 +75,7 @@ describe('HeroAboutTransition', () => {
   });
 
   it('places the existing hero and about content around a two-panel center split', () => {
-    render(
+    const { container } = render(
       <HeroAboutTransition person={content.person} about={content.about} />,
     );
 
@@ -87,6 +87,7 @@ describe('HeroAboutTransition', () => {
     ).toBeInTheDocument();
     expect(screen.getByTestId('hero-split-panel-top')).toBeInTheDocument();
     expect(screen.getByTestId('hero-split-panel-bottom')).toBeInTheDocument();
+    expect(container.querySelectorAll('.sticky > span')).toHaveLength(2);
   });
 
   it('activates scrolling only after the loader, visual, and hero entrance have settled', async () => {

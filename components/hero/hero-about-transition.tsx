@@ -150,12 +150,6 @@ export function HeroAboutTransition({
           className="pointer-events-none absolute inset-x-0 top-1/2 z-30 h-[calc(50%+1px)] origin-top bg-paper will-change-transform"
           style={{ scaleY: panelScale, backfaceVisibility: 'hidden' }}
         />
-        <motion.span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/2 z-30 h-px -translate-y-1/2 bg-paper"
-          animate={{ opacity: transitionReady ? 1 : 0 }}
-          transition={{ duration: 0.35 }}
-        />
       </div>
 
       <div className="relative z-40 pt-[8svh] md:pt-[15svh]">
