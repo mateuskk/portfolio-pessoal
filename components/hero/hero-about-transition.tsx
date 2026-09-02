@@ -141,13 +141,13 @@ export function HeroAboutTransition({
         <motion.span
           aria-hidden="true"
           data-testid="hero-split-panel-top"
-          className="pointer-events-none absolute inset-x-0 bottom-1/2 z-30 h-[calc(50%+1px)] origin-bottom bg-paper will-change-transform"
+          className="pointer-events-none absolute inset-x-0 bottom-[calc(50%-1px)] z-30 h-[calc(50%+1px)] origin-bottom bg-paper will-change-transform"
           style={{ scaleY: panelScale, backfaceVisibility: 'hidden' }}
         />
         <motion.span
           aria-hidden="true"
           data-testid="hero-split-panel-bottom"
-          className="pointer-events-none absolute inset-x-0 top-1/2 z-30 h-[calc(50%+1px)] origin-top bg-paper will-change-transform"
+          className="pointer-events-none absolute inset-x-0 top-[calc(50%-1px)] z-30 h-[calc(50%+1px)] origin-top bg-paper will-change-transform"
           style={{ scaleY: panelScale, backfaceVisibility: 'hidden' }}
         />
       </div>

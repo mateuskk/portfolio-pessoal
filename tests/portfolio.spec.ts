@@ -166,6 +166,7 @@ test('hero split stays dormant until ready and then opens from the center', asyn
       .getBoundingClientRect();
     return {
       viewportHeight: window.innerHeight,
+      centerOverlap: top.bottom - bottom.top,
       top: { top: top.top, bottom: top.bottom, height: top.height },
       bottom: { top: bottom.top, bottom: bottom.bottom, height: bottom.height },
     };
@@ -187,6 +188,7 @@ test('hero split stays dormant until ready and then opens from the center', asyn
   expect(
     Math.abs(geometry.bottom.bottom - geometry.viewportHeight),
   ).toBeLessThanOrEqual(2);
+  expect(geometry.centerOverlap).toBeGreaterThanOrEqual(2);
   expect(finalText.x).toBeLessThan(initialText.x - 20);
   expect(finalText.y).toBeLessThan(initialText.y - 40);
   await expect(page.getByTestId('hero-sticky-content')).toHaveAttribute(
