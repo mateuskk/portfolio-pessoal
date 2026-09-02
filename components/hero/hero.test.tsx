@@ -1,10 +1,16 @@
 import { render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { completeIntro, startIntro } from "@/lib/intro";
 import { getHeroVisualAnimation, Hero } from "./hero";
 
 describe("Hero", () => {
-  afterEach(() => vi.restoreAllMocks());
+  beforeEach(() => startIntro());
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
 
   it("keeps identity and the primary project action available without WebGL", () => {
     render(
@@ -69,5 +75,35 @@ describe("Hero", () => {
     expect(animation.animate).toEqual({ opacity: 1, clipPath: "inset(0 0 0 0%)" });
     expect(animation.initial).not.toHaveProperty("scale");
     expect(animation.animate).not.toHaveProperty("scale");
+  });
+
+  it("keeps the preloaded 3D stage hidden until the intro is ready", () => {
+    expect(getHeroVisualAnimation(false, false).animate).toEqual({
+      opacity: 0,
+      clipPath: "inset(0 0 0 18%)",
+    });
+  });
+
+  it("does not show the mobile fallback while the desktop scene is loading", () => {
+    completeIntro();
+    vi.stubGlobal("WebGLRenderingContext", class WebGLRenderingContext {});
+    vi.spyOn(window, "matchMedia").mockImplementation((query) => ({
+      matches: query.includes("min-width: 768px"),
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+    }) as unknown as MediaQueryList);
+
+    const { container } = render(
+      <Hero
+        content={{
+          name: "Seu Nome",
+          role: "Creative Developer",
+          location: "São Paulo, BR",
+          availability: "Available for selected projects",
+        }}
+      />,
+    );
+
+    expect(container.querySelector('[data-testid="hero-visual"] .rounded-full')).not.toBeInTheDocument();
   });
 });

@@ -69,6 +69,28 @@ test("desktop 3D canvas keeps filling its stage after the intro", async ({ page 
   expect(uncoveredSpace.right).toBeLessThanOrEqual(1);
 });
 
+test("desktop never exposes the mobile fallback between the loader and the 3D scene", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.addInitScript(() => {
+    const state = window as unknown as { __heroFallbackSeen: boolean };
+    state.__heroFallbackSeen = false;
+
+    new MutationObserver(() => {
+      if (document.querySelector('[data-testid="hero-visual"] .rounded-full')) {
+        state.__heroFallbackSeen = true;
+      }
+    }).observe(document, { childList: true, subtree: true });
+  });
+  await page.goto("/");
+  await expect(page.getByRole("status", { name: /loading portfolio/i })).toBeHidden();
+  await page.waitForTimeout(400);
+
+  const fallbackSeen = await page.evaluate(
+    () => (window as unknown as { __heroFallbackSeen: boolean }).__heroFallbackSeen,
+  );
+  expect(fallbackSeen).toBe(false);
+});
+
 test("mobile navigation and projects remain directly operable", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");

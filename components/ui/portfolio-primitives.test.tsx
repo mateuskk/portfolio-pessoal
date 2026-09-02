@@ -52,7 +52,8 @@ describe("portfolio primitives", () => {
 
   it("can stagger intro text without delaying the loader or the page container", () => {
     expect(getIntroRevealItem(0.24).visible).toMatchObject({
-      transition: { delay: 0.24 },
+      transition: { delay: 0.24, duration: 1.25 },
     });
+    expect(revealItem.visible).toMatchObject({ transition: { duration: 1.1 } });
   });
 });

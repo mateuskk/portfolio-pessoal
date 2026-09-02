@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+import { getSculptureRevealPose } from "@/lib/hero-sculpture-motion";
 import { createStudioEnvironmentTexture } from "@/lib/studio-environment";
 
 function StudioEnvironment() {
@@ -14,18 +15,24 @@ function StudioEnvironment() {
   return <primitive attach="environment" object={texture} />;
 }
 
-function Sculpture() {
+function Sculpture({ active }: { active: boolean }) {
   const group = useRef<THREE.Group>(null);
+  const revealProgress = useRef(0);
 
   useFrame((state, delta) => {
     const sculpture = group.current;
     if (!sculpture) return;
 
+    revealProgress.current = THREE.MathUtils.damp(revealProgress.current, active ? 1 : 0, 3.2, delta);
+    const revealPose = getSculptureRevealPose(revealProgress.current);
     const targetX = THREE.MathUtils.clamp(-state.pointer.y * 0.16, -0.16, 0.16);
     const targetY = THREE.MathUtils.clamp(state.pointer.x * 0.16, -0.16, 0.16);
+
+    sculpture.position.x = revealPose.x;
+    sculpture.scale.setScalar(revealPose.scale);
     sculpture.rotation.x = THREE.MathUtils.damp(sculpture.rotation.x, targetX - 0.18, 4, delta);
     sculpture.rotation.y = THREE.MathUtils.damp(sculpture.rotation.y, targetY + 0.22, 4, delta);
-    sculpture.rotation.z += delta * 0.075;
+    sculpture.rotation.z += delta * revealPose.spin;
   });
 
   return (
@@ -43,10 +50,11 @@ function Sculpture() {
 }
 
 type HeroSceneProps = {
+  active?: boolean;
   inView?: boolean;
 };
 
-export function HeroScene({ inView = true }: HeroSceneProps) {
+export function HeroScene({ active = true, inView = true }: HeroSceneProps) {
   return (
     <Canvas
       aria-hidden="true"
@@ -61,7 +69,7 @@ export function HeroScene({ inView = true }: HeroSceneProps) {
       <pointLight color="#a3a3a3" intensity={12} position={[-4, -1, 3]} />
       <pointLight color="#ffffff" intensity={7} position={[0, -4, -2]} />
       <StudioEnvironment />
-      <Sculpture />
+      <Sculpture active={active} />
     </Canvas>
   );
 }

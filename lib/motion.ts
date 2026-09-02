@@ -3,7 +3,7 @@ import { stagger, type Transition, type Variants } from "motion/react";
 export const easeOutExpo = [0.22, 1, 0.36, 1] as const;
 
 export const weightedTransition: Transition = {
-  duration: 0.8,
+  duration: 1.1,
   ease: easeOutExpo,
 };
 
@@ -33,7 +33,7 @@ export function getIntroRevealItem(delay = 0): Variants {
       opacity: 1,
       x: 0,
       filter: "blur(0px)",
-      transition: { duration: 0.85, ease: easeOutExpo, delay },
+      transition: { duration: 1.25, ease: easeOutExpo, delay },
     },
   };
 }

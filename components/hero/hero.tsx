@@ -31,13 +31,18 @@ class HeroSceneBoundary extends Component<{ children: ReactNode }, { failed: boo
   }
 }
 
-function useHeroSceneAvailability() {
-  const [available, setAvailable] = useState(false);
+type HeroSceneMode = "pending" | "webgl" | "fallback";
+
+function useHeroSceneMode() {
+  const [mode, setMode] = useState<HeroSceneMode>("pending");
 
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 768px)");
     const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setAvailable(desktop.matches && !motionPreference.matches && Boolean(window.WebGLRenderingContext));
+    const update = () => {
+      const canRenderWebGL = desktop.matches && !motionPreference.matches && Boolean(window.WebGLRenderingContext);
+      setMode(canRenderWebGL ? "webgl" : "fallback");
+    };
     update();
     desktop.addEventListener("change", update);
     motionPreference.addEventListener("change", update);
@@ -47,7 +52,7 @@ function useHeroSceneAvailability() {
     };
   }, []);
 
-  return available;
+  return mode;
 }
 
 function useInView(active: boolean) {
@@ -75,25 +80,29 @@ const getHeroItem = (reduceMotion: boolean) => ({
   },
 });
 
-export function getHeroVisualAnimation(reduceMotion: boolean) {
+export function getHeroVisualAnimation(reduceMotion: boolean, revealed = true) {
+  const hidden = { opacity: 0, clipPath: "inset(0 0 0 18%)" };
+  const visible = { opacity: 1, clipPath: "inset(0 0 0 0%)" };
+
   return {
-    initial: reduceMotion ? false as const : { opacity: 0, clipPath: "inset(0 0 0 18%)" },
-    animate: { opacity: 1, clipPath: "inset(0 0 0 0%)" },
-    transition: { duration: reduceMotion ? 0 : 1.05, ease: easeOutExpo, delay: reduceMotion ? 0 : 0.12 },
+    initial: reduceMotion ? false as const : hidden,
+    animate: reduceMotion || revealed ? visible : hidden,
+    transition: { duration: reduceMotion ? 0 : 1.25, ease: easeOutExpo, delay: reduceMotion ? 0 : 0.08 },
   };
 }
 
 export function Hero({ content }: HeroProps) {
-  const showWebGL = useHeroSceneAvailability();
+  const sceneMode = useHeroSceneMode();
+  const showWebGL = sceneMode === "webgl";
   const { ref: visualRef, inView } = useInView(showWebGL);
   const reduceMotion = useReducedMotionPreference();
   const introReady = useIntroReady();
   const heroItemVariants = useMemo(() => getHeroItem(reduceMotion), [reduceMotion]);
-  const heroVisualAnimation = useMemo(() => getHeroVisualAnimation(reduceMotion), [reduceMotion]);
   const words = content.role.trim().split(/\s+/);
   const editorialWord = words.pop() ?? content.role;
   const primaryWords = words.join(" ");
   const revealed = reduceMotion || introReady;
+  const heroVisualAnimation = useMemo(() => getHeroVisualAnimation(reduceMotion, revealed), [reduceMotion, revealed]);
 
   return (
     <section className="relative isolate grid min-h-svh overflow-hidden px-page pb-10 pt-28 lg:min-h-[100svh] lg:grid-cols-12 lg:grid-rows-[auto_1fr_auto] lg:pb-14 lg:pt-36" aria-labelledby="hero-title">
@@ -102,14 +111,14 @@ export function Hero({ content }: HeroProps) {
       <div className="relative z-20 my-auto py-16 sm:py-20 lg:col-span-10 lg:py-24">
         <RevealText as="p" trigger="intro" className="mb-5 text-label uppercase text-muted-foreground">{content.name}</RevealText>
         <h1 id="hero-title" className="max-w-[11ch] text-display font-medium leading-[0.82] tracking-[-0.07em]">
-          <RevealText delay={0.08} trigger="intro">{primaryWords}&nbsp;</RevealText>
-          <RevealText delay={0.16} trigger="intro">
+          <RevealText delay={0.12} trigger="intro">{primaryWords}&nbsp;</RevealText>
+          <RevealText delay={0.24} trigger="intro">
             <span className="font-serif font-normal italic tracking-[-0.045em]">{editorialWord}</span>
           </RevealText>
         </h1>
         <RevealText
           as="p"
-          delay={0.28}
+          delay={0.42}
           trigger="intro"
           className="mt-8 max-w-sm text-balance text-base leading-relaxed text-muted-foreground sm:max-w-md lg:ml-[50%] lg:text-lg"
         >
@@ -123,25 +132,23 @@ export function Hero({ content }: HeroProps) {
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-[-18vw] bottom-[8%] top-[18%] z-0 opacity-70 sm:inset-x-[18%] sm:bottom-[2%] sm:top-[15%] lg:inset-y-[9%] lg:left-[43%] lg:right-[-3%] lg:opacity-90"
       >
-        {revealed && (
-          <motion.div
-            data-testid="hero-visual-reveal"
-            className="relative size-full [&_canvas]:!h-full [&_canvas]:!w-full"
-            style={{ willChange: "clip-path, opacity" }}
-            {...heroVisualAnimation}
-          >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgb(243_241_234/9%),transparent_58%)]" />
-            {showWebGL ? (
-              <HeroSceneBoundary>
-                <Suspense fallback={<HeroFallback />}>
-                  <LazyHeroScene inView={inView} />
-                </Suspense>
-              </HeroSceneBoundary>
-            ) : (
-              <HeroFallback />
-            )}
-          </motion.div>
-        )}
+        <motion.div
+          data-testid="hero-visual-reveal"
+          className="relative size-full [&_canvas]:!h-full [&_canvas]:!w-full"
+          style={{ willChange: "clip-path, opacity" }}
+          {...heroVisualAnimation}
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgb(243_241_234/9%),transparent_58%)]" />
+          {showWebGL ? (
+            <HeroSceneBoundary>
+              <Suspense fallback={null}>
+                <LazyHeroScene active={revealed} inView={inView} />
+              </Suspense>
+            </HeroSceneBoundary>
+          ) : sceneMode === "fallback" ? (
+            <HeroFallback />
+          ) : null}
+        </motion.div>
       </div>
 
       <motion.div
