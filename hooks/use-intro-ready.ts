@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 
-import { INTRO_COMPLETE_EVENT, INTRO_SESSION_KEY } from "@/lib/intro";
+import { INTRO_COMPLETE_EVENT, isIntroComplete } from "@/lib/intro";
 
 function subscribe(onChange: () => void) {
   const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -16,8 +16,7 @@ function subscribe(onChange: () => void) {
 }
 
 function getSnapshot() {
-  return window.sessionStorage.getItem(INTRO_SESSION_KEY) === "true"
-    || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return isIntroComplete() || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 export function useIntroReady() {

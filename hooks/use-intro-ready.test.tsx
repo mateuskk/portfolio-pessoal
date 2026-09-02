@@ -1,7 +1,7 @@
 import { act, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { INTRO_COMPLETE_EVENT, INTRO_SESSION_KEY } from "@/lib/intro";
+import { completeIntro, startIntro } from "@/lib/intro";
 import { useIntroReady } from "./use-intro-ready";
 
 function IntroState() {
@@ -10,15 +10,14 @@ function IntroState() {
 }
 
 describe("useIntroReady", () => {
-  beforeEach(() => window.sessionStorage.clear());
+  beforeEach(() => startIntro());
 
   it("releases opening motion only after the loader completes", () => {
     render(<IntroState />);
     expect(screen.getByRole("status", { name: "Intro state" })).toHaveTextContent("waiting");
 
     act(() => {
-      window.sessionStorage.setItem(INTRO_SESSION_KEY, "true");
-      window.dispatchEvent(new Event(INTRO_COMPLETE_EVENT));
+      completeIntro();
     });
 
     expect(screen.getByRole("status", { name: "Intro state" })).toHaveTextContent("ready");

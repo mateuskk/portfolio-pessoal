@@ -2,11 +2,13 @@ import { act, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { startIntro } from "@/lib/intro";
 import { getLoadingOverlayAnimation, LoadingScreen } from "./loading-screen";
 
 describe("LoadingScreen", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    startIntro();
     window.sessionStorage.clear();
   });
 
@@ -25,7 +27,6 @@ describe("LoadingScreen", () => {
 
     await act(async () => vi.advanceTimersByTimeAsync(3500));
     expect(screen.queryByRole("status", { name: /loading portfolio/i })).not.toBeInTheDocument();
-    expect(window.sessionStorage.getItem("portfolio-intro-complete")).toBe("true");
   });
 
   it("covers the first render with an opaque ink layer before any effects run", () => {
@@ -45,14 +46,26 @@ describe("LoadingScreen", () => {
     });
   });
 
-  it("does not show again when remounted in the same tab", async () => {
+  it("starts a new sequence when the page root mounts again", async () => {
     const firstMount = render(<LoadingScreen />);
     await act(async () => vi.advanceTimersByTimeAsync(3500));
     firstMount.unmount();
 
     render(<LoadingScreen />);
+    expect(screen.getByRole("status", { name: /loading portfolio/i })).toBeInTheDocument();
     await act(async () => vi.advanceTimersByTimeAsync(3500));
 
+    expect(screen.queryByRole("status", { name: /loading portfolio/i })).not.toBeInTheDocument();
+  });
+
+  it("runs a fresh loading sequence after a full page reload", async () => {
+    window.sessionStorage.setItem("portfolio-intro-complete", "true");
+
+    render(<LoadingScreen />);
+
+    expect(screen.getByRole("status", { name: /loading portfolio/i })).toBeInTheDocument();
+
+    await act(async () => vi.advanceTimersByTimeAsync(3500));
     expect(screen.queryByRole("status", { name: /loading portfolio/i })).not.toBeInTheDocument();
   });
 

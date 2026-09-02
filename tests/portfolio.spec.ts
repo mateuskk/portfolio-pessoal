@@ -33,6 +33,11 @@ test("opening motion begins after the loading transition", async ({ page }) => {
   await expect(loader).toBeVisible();
   await expect(loader).toBeHidden();
   await expect(navbar).toHaveCSS("opacity", "1");
+
+  await page.reload();
+  await expect(loader).toBeVisible();
+  await expect(loader).toBeHidden();
+  await expect(navbar).toHaveCSS("opacity", "1");
 });
 
 test("mobile navigation and projects remain directly operable", async ({ page }) => {

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 
 import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
-import { completeIntro, INTRO_SESSION_KEY } from "@/lib/intro";
+import { completeIntro, isIntroComplete, startIntro } from "@/lib/intro";
 import { easeOutExpo } from "@/lib/motion";
 
 const FILL_DURATION_MS = 2600;
@@ -20,11 +20,16 @@ export function getLoadingOverlayAnimation(stage: LoadingStage) {
 
 export function LoadingScreen() {
   const reduceMotion = useReducedMotionPreference();
-  const [stage, setStage] = useState<LoadingStage>("filling");
+  const [stage, setStage] = useState<LoadingStage>(() => {
+    startIntro();
+    return "filling";
+  });
 
   useEffect(() => {
-    if (reduceMotion || window.sessionStorage.getItem(INTRO_SESSION_KEY) === "true") {
-      if (reduceMotion) completeIntro();
+    if (reduceMotion || isIntroComplete()) {
+      if (reduceMotion) {
+        completeIntro();
+      }
       return;
     }
 
@@ -41,7 +46,7 @@ export function LoadingScreen() {
   }, [reduceMotion]);
 
   if (stage === "hidden" || reduceMotion) return null;
-  if (typeof window !== "undefined" && window.sessionStorage.getItem(INTRO_SESSION_KEY) === "true") return null;
+  if (typeof window !== "undefined" && isIntroComplete()) return null;
 
   return (
     <motion.output

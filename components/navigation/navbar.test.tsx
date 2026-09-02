@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { completeIntro, startIntro } from "@/lib/intro";
 import { getNavbarActiveTransition, getNavbarInteractionProps, getNavbarMotionState, Navbar } from "./navbar";
 import { getMobileMenuMotionStyle } from "./mobile-menu";
 
@@ -12,12 +13,12 @@ const items = [
 
 describe("Navbar", () => {
   beforeEach(() => {
-    window.sessionStorage.setItem("portfolio-intro-complete", "true");
+    startIntro();
+    completeIntro();
   });
 
   afterEach(() => {
     Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
-    window.sessionStorage.clear();
   });
 
   it("exposes desktop links and an accessible dismissible mobile dialog", async () => {
@@ -64,7 +65,6 @@ describe("Navbar", () => {
   it("reacts when reduced motion changes while the navbar is mounted", () => {
     let reduced = false;
     const listeners = new Set<(event: MediaQueryListEvent) => void>();
-    window.sessionStorage.setItem("portfolio-intro-complete", "true");
     vi.spyOn(window, "matchMedia").mockImplementation((query) => ({
       get matches() { return query.includes("prefers-reduced-motion: reduce") && reduced; },
       addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => listeners.add(listener),
