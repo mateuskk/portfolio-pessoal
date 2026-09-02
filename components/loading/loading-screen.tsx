@@ -5,15 +5,22 @@ import { motion } from "motion/react";
 
 import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import { completeIntro, INTRO_SESSION_KEY } from "@/lib/intro";
+import { easeOutExpo } from "@/lib/motion";
 
-const COUNTER_COMPLETE_MS = 875;
-const INTRO_DURATION_MS = 1000;
-const TICK_MS = 25;
+const FILL_DURATION_MS = 2600;
+const LEAVE_DURATION_MS = 700;
+
+export type LoadingStage = "hidden" | "filling" | "leaving";
+
+export function getLoadingOverlayAnimation(stage: LoadingStage) {
+  return stage === "leaving"
+    ? { clipPath: "inset(0 0 100% 0)", opacity: 1 }
+    : { clipPath: "inset(0 0 0% 0)", opacity: 1 };
+}
 
 export function LoadingScreen() {
   const reduceMotion = useReducedMotionPreference();
-  const [visible, setVisible] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [stage, setStage] = useState<LoadingStage>("filling");
 
   useEffect(() => {
     if (reduceMotion || window.sessionStorage.getItem(INTRO_SESSION_KEY) === "true") {
@@ -21,54 +28,65 @@ export function LoadingScreen() {
       return;
     }
 
-    let elapsed = 0;
-    const revealTimer = window.setTimeout(() => setVisible(true), 0);
-    const progressTimer = window.setInterval(() => {
-      elapsed += TICK_MS;
-      setProgress(Math.min(99, Math.round((elapsed / COUNTER_COMPLETE_MS) * 100)));
-    }, TICK_MS);
-    const completeTimer = window.setTimeout(() => {
-      window.clearInterval(progressTimer);
-      setProgress(100);
-    }, COUNTER_COMPLETE_MS);
-    const finishTimer = window.setTimeout(() => {
-      window.clearInterval(progressTimer);
+    const leaveTimer = window.setTimeout(() => setStage("leaving"), FILL_DURATION_MS);
+    const doneTimer = window.setTimeout(() => {
       completeIntro();
-      setVisible(false);
-    }, INTRO_DURATION_MS);
+      setStage("hidden");
+    }, FILL_DURATION_MS + LEAVE_DURATION_MS);
 
     return () => {
-      window.clearTimeout(revealTimer);
-      window.clearTimeout(completeTimer);
-      window.clearTimeout(finishTimer);
-      window.clearInterval(progressTimer);
+      window.clearTimeout(leaveTimer);
+      window.clearTimeout(doneTimer);
     };
   }, [reduceMotion]);
 
-  if (!visible || reduceMotion) return null;
-  if (window.sessionStorage.getItem(INTRO_SESSION_KEY) === "true") return null;
+  if (stage === "hidden" || reduceMotion) return null;
+  if (typeof window !== "undefined" && window.sessionStorage.getItem(INTRO_SESSION_KEY) === "true") return null;
 
   return (
     <motion.output
       aria-label="Loading portfolio"
-      className="pointer-events-none fixed inset-0 z-[200] grid grid-rows-[1fr_auto] bg-ink px-page py-8 text-paper"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.18 }}
+      className="pointer-events-none fixed inset-0 z-[200] grid place-items-center bg-ink"
+      initial={false}
+      animate={getLoadingOverlayAnimation(stage)}
+      transition={{ duration: LEAVE_DURATION_MS / 1000, ease: easeOutExpo }}
     >
-      <div className="grid place-items-center">
-        <p className="font-serif text-[clamp(6rem,17vw,18rem)] italic leading-none tracking-[-0.08em] tabular-nums">
-          {String(progress).padStart(3, "0")}
-        </p>
-      </div>
-      <div>
-        <div className="mb-4 flex justify-between text-label uppercase text-muted-foreground">
-          <span>Loading portfolio</span><span>{progress}%</span>
-        </div>
-        <div className="h-px overflow-hidden bg-white/20">
-          <motion.div className="h-full origin-left bg-paper" animate={{ scaleX: progress / 100 }} transition={{ duration: 0.08 }} />
-        </div>
-      </div>
+      <LoadingMark filled={stage === "filling" || stage === "leaving"} />
     </motion.output>
+  );
+}
+
+function LoadingMark({ filled }: { filled: boolean }) {
+  const radius = 42;
+  const circumference = 2 * Math.PI * radius;
+
+  return (
+    <div className="relative grid size-32 place-items-center sm:size-36">
+      <svg viewBox="0 0 96 96" className="absolute inset-0 -rotate-90">
+        <circle cx="48" cy="48" r={radius} fill="none" stroke="currentColor" strokeWidth="1" className="text-white/15" />
+        <motion.circle
+          cx="48"
+          cy="48"
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1"
+          strokeLinecap="round"
+          className="text-paper"
+          style={{ strokeDasharray: circumference }}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: filled ? 0 : circumference }}
+          transition={{ duration: FILL_DURATION_MS / 1000, ease: "linear" }}
+        />
+      </svg>
+      <motion.div
+        className="grid size-16 place-items-center rounded-full border border-white/15 sm:size-[4.5rem]"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: easeOutExpo }}
+      >
+        <span className="font-serif text-xl italic tracking-[-0.02em] text-paper sm:text-2xl">MB</span>
+      </motion.div>
+    </div>
   );
 }

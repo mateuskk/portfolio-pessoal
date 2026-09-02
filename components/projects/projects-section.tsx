@@ -32,6 +32,7 @@ export function findNearestProjectIndex(scrollLeft: number, viewportWidth: numbe
 export function ProjectsSection({ projects }: ProjectsSectionProps) {
   const { activeIndex, containerRef } = useProjectProgress(projects.length);
   const [mobileIndex, setMobileIndex] = useState(0);
+  const [fallbackOpen, setFallbackOpen] = useState(false);
   const railRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotionPreference();
   const lastIndex = Math.max(0, projects.length - 1);
@@ -72,8 +73,19 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       <div className="hidden lg:block lg:h-[400vh]">
         <div className="sticky top-0 h-screen overflow-hidden px-page">
           <h2 className="sr-only">Selected work</h2>
-          <div className="sr-only focus-within:not-sr-only focus-within:absolute focus-within:left-[var(--page-gutter)] focus-within:top-24 focus-within:z-[80] focus-within:max-h-[calc(100vh-7rem)] focus-within:w-[min(34rem,calc(100vw-(var(--page-gutter)*2)))] focus-within:overflow-auto focus-within:border focus-within:border-white/20 focus-within:bg-ink focus-within:p-6 focus-within:text-paper">
-            <ol aria-label="All selected projects">
+          <div className={fallbackOpen
+            ? "absolute left-[var(--page-gutter)] top-24 z-[80] max-h-[calc(100vh-7rem)] w-[min(34rem,calc(100vw-(var(--page-gutter)*2)))] overflow-auto border border-white/20 bg-ink p-6 text-paper"
+            : "sr-only focus-within:not-sr-only focus-within:absolute focus-within:left-[var(--page-gutter)] focus-within:top-24 focus-within:z-[80] focus-within:max-h-[calc(100vh-7rem)] focus-within:w-[min(34rem,calc(100vw-(var(--page-gutter)*2)))] focus-within:overflow-auto focus-within:border focus-within:border-white/20 focus-within:bg-ink focus-within:p-6 focus-within:text-paper"}>
+            <button
+              aria-controls="projects-fallback-list"
+              aria-expanded={fallbackOpen}
+              className="focus-ring text-label uppercase"
+              onClick={() => setFallbackOpen(true)}
+              type="button"
+            >
+              Browse all selected projects
+            </button>
+            <ol aria-label="All selected projects" className="mt-6" id="projects-fallback-list">
               {projects.map((project) => (
                 <li key={project.slug}>
                   <article>

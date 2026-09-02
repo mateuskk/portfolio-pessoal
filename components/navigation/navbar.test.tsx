@@ -1,8 +1,8 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getNavbarActiveTransition, getNavbarMotionState, Navbar } from "./navbar";
+import { getNavbarActiveTransition, getNavbarInteractionProps, getNavbarMotionState, Navbar } from "./navbar";
 import { getMobileMenuMotionStyle } from "./mobile-menu";
 
 const items = [
@@ -11,8 +11,13 @@ const items = [
 ];
 
 describe("Navbar", () => {
+  beforeEach(() => {
+    window.sessionStorage.setItem("portfolio-intro-complete", "true");
+  });
+
   afterEach(() => {
     Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
+    window.sessionStorage.clear();
   });
 
   it("exposes desktop links and an accessible dismissible mobile dialog", async () => {
@@ -52,6 +57,8 @@ describe("Navbar", () => {
     expect(getNavbarMotionState(false, true)).toEqual({ initial: false, animate: "visible" });
     expect(getNavbarMotionState(true, false)).toEqual({ initial: false, animate: "visible" });
     expect(getNavbarActiveTransition(true)).toEqual({ duration: 0 });
+    expect(getNavbarInteractionProps(false, false)).toEqual({ "aria-hidden": true, inert: true });
+    expect(getNavbarInteractionProps(false, true)).toEqual({});
   });
 
   it("reacts when reduced motion changes while the navbar is mounted", () => {

@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { getMagneticMotion, getMagneticOffset, MagneticLink } from "./magnetic-link";
 import { RevealText } from "./reveal-text";
 import { SectionHeading } from "./section-heading";
+import { introRevealItem, revealItem } from "@/lib/motion";
 
 describe("portfolio primitives", () => {
   it("exposes section context as a named heading", () => {
@@ -40,5 +41,10 @@ describe("portfolio primitives", () => {
       animation: { x: 0, y: 0 },
       transition: { duration: 0 },
     });
+  });
+
+  it("keeps blur reserved for text reveal states", () => {
+    expect(revealItem.hidden).toMatchObject({ filter: "blur(10px)" });
+    expect(introRevealItem.hidden).toMatchObject({ filter: "blur(12px)" });
   });
 });

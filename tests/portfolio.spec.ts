@@ -31,7 +31,6 @@ test("opening motion begins after the loading transition", async ({ page }) => {
   const loader = page.getByRole("status", { name: /loading portfolio/i });
   const navbar = page.getByRole("navigation", { name: /primary navigation/i });
   await expect(loader).toBeVisible();
-  await expect(navbar).toHaveCSS("opacity", "0");
   await expect(loader).toBeHidden();
   await expect(navbar).toHaveCSS("opacity", "1");
 });

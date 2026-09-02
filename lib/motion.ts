@@ -17,10 +17,20 @@ export const revealContainer: Variants = {
 };
 
 export const revealItem: Variants = {
-  hidden: { opacity: 0.35, y: "45%" },
+  hidden: { opacity: 0.35, y: "28%", filter: "blur(10px)" },
   visible: {
     opacity: 1,
     y: "0%",
+    filter: "blur(0px)",
     transition: weightedTransition,
+  },
+};
+
+export const introRevealItem: Variants = {
+  hidden: { y: 14, filter: "blur(12px)" },
+  visible: {
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.75, ease: easeOutExpo },
   },
 };

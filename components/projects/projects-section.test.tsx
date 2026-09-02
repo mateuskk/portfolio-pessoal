@@ -78,6 +78,7 @@ describe("ProjectsSection", () => {
     render(<ProjectsSection projects={projects} />);
 
     const list = screen.getByRole("list", { name: "All selected projects" });
+    expect(screen.getByRole("button", { name: /browse all selected projects/i })).toHaveAttribute("aria-controls", "projects-fallback-list");
     expect(within(list).getByRole("heading", { name: "Obsidian" })).toBeInTheDocument();
     expect(within(list).getByRole("heading", { name: "Monolith" })).toBeInTheDocument();
     expect(screen.getAllByRole("heading", { name: "Selected work" })).toHaveLength(2);

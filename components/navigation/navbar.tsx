@@ -45,6 +45,10 @@ export function getNavbarActiveTransition(reduceMotion: boolean) {
   return reduceMotion ? { duration: 0 } : { duration: 0.45, ease: easeOutExpo };
 }
 
+export function getNavbarInteractionProps(reduceMotion: boolean, introReady: boolean) {
+  return reduceMotion || introReady ? {} : { "aria-hidden": true, inert: true };
+}
+
 type NavbarProps = {
   items: NavItem[];
   initials: string;
@@ -74,6 +78,7 @@ export function Navbar({ items, initials, email }: NavbarProps) {
         aria-label="Primary navigation"
         data-compact={String(compact)}
         data-reduced-motion={String(reduceMotion)}
+        {...getNavbarInteractionProps(reduceMotion, introReady)}
         className="pointer-events-auto flex h-16 w-full max-w-[76rem] items-center justify-between rounded-full border border-white/15 bg-black/70 px-3 text-label uppercase shadow-[0_16px_60px_rgb(0_0_0/35%)] backdrop-blur-xl transition-[height] duration-[400ms] ease-expo-out data-[compact=true]:h-[54px] md:px-4"
         variants={getNavbarShell(reduceMotion)}
       >

@@ -1,7 +1,8 @@
 import { act, render, screen } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { LoadingScreen } from "./loading-screen";
+import { getLoadingOverlayAnimation, LoadingScreen } from "./loading-screen";
 
 describe("LoadingScreen", () => {
   beforeEach(() => {
@@ -14,28 +15,43 @@ describe("LoadingScreen", () => {
     vi.restoreAllMocks();
   });
 
-  it("shows a bounded first-tab counter and then gets out of the way", async () => {
+  it("shows the loading mark and then gets out of the way", async () => {
     render(<LoadingScreen />);
 
     await act(async () => vi.advanceTimersByTimeAsync(1));
-    expect(screen.getByRole("status", { name: /loading portfolio/i })).toHaveTextContent(/\d{1,3}/);
-    expect(screen.getByRole("status", { name: /loading portfolio/i })).toHaveClass("pointer-events-none");
+    const status = screen.getByRole("status", { name: /loading portfolio/i });
+    expect(status).toBeInTheDocument();
+    expect(status).toHaveTextContent("MB");
 
-    await act(async () => vi.advanceTimersByTimeAsync(899));
-    expect(screen.getByRole("status", { name: /loading portfolio/i })).toHaveTextContent("100");
-
-    await act(async () => vi.advanceTimersByTimeAsync(200));
+    await act(async () => vi.advanceTimersByTimeAsync(3500));
     expect(screen.queryByRole("status", { name: /loading portfolio/i })).not.toBeInTheDocument();
     expect(window.sessionStorage.getItem("portfolio-intro-complete")).toBe("true");
   });
 
+  it("covers the first render with an opaque ink layer before any effects run", () => {
+    render(<LoadingScreen />);
+
+    expect(screen.getByRole("status", { name: /loading portfolio/i })).toHaveClass("bg-ink");
+  });
+
+  it("renders the opaque loading layer during server rendering", () => {
+    expect(renderToString(<LoadingScreen />)).toContain("bg-ink");
+  });
+
+  it("releases the page with a clip transition instead of a blurred fade", () => {
+    expect(getLoadingOverlayAnimation("leaving")).toEqual({
+      clipPath: "inset(0 0 100% 0)",
+      opacity: 1,
+    });
+  });
+
   it("does not show again when remounted in the same tab", async () => {
     const firstMount = render(<LoadingScreen />);
-    await act(async () => vi.advanceTimersByTimeAsync(1100));
+    await act(async () => vi.advanceTimersByTimeAsync(3500));
     firstMount.unmount();
 
     render(<LoadingScreen />);
-    await act(async () => vi.advanceTimersByTimeAsync(1100));
+    await act(async () => vi.advanceTimersByTimeAsync(3500));
 
     expect(screen.queryByRole("status", { name: /loading portfolio/i })).not.toBeInTheDocument();
   });
@@ -48,7 +64,7 @@ describe("LoadingScreen", () => {
     }) as unknown as MediaQueryList);
 
     render(<LoadingScreen />);
-    await act(async () => vi.advanceTimersByTimeAsync(1200));
+    await act(async () => vi.advanceTimersByTimeAsync(3500));
 
     expect(screen.queryByRole("status", { name: /loading portfolio/i })).not.toBeInTheDocument();
   });

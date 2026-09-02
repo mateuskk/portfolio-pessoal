@@ -1,9 +1,13 @@
 "use client";
 
-import { Component, lazy, Suspense, useEffect, useRef, useState, type ErrorInfo, type ReactNode } from "react";
+import { Component, lazy, Suspense, useEffect, useMemo, useRef, useState, type ErrorInfo, type ReactNode } from "react";
+import { motion } from "motion/react";
 
 import { MagneticLink } from "@/components/ui/magnetic-link";
 import { RevealText } from "@/components/ui/reveal-text";
+import { useIntroReady } from "@/hooks/use-intro-ready";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
+import { easeOutExpo } from "@/lib/motion";
 import type { PortfolioContent } from "@/content/portfolio";
 import { HeroFallback } from "./hero-fallback";
 
@@ -62,57 +66,103 @@ function useInView(active: boolean) {
   return { ref, inView };
 }
 
+const getHeroGroup = (reduceMotion: boolean) => ({
+  hidden: reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: reduceMotion ? 0 : 0.85,
+      ease: easeOutExpo,
+      staggerChildren: reduceMotion ? 0 : 0.1,
+      delayChildren: reduceMotion ? 0 : 0.1,
+    },
+  },
+});
+
+const getHeroItem = (reduceMotion: boolean) => ({
+  hidden: reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: reduceMotion ? 0 : 0.75, ease: easeOutExpo, delay: reduceMotion ? 0 : 0.55 },
+  },
+});
+
 export function Hero({ content }: HeroProps) {
   const showWebGL = useHeroSceneAvailability();
   const { ref: visualRef, inView } = useInView(showWebGL);
+  const reduceMotion = useReducedMotionPreference();
+  const introReady = useIntroReady();
+  const heroGroupVariants = useMemo(() => getHeroGroup(reduceMotion), [reduceMotion]);
+  const heroItemVariants = useMemo(() => getHeroItem(reduceMotion), [reduceMotion]);
   const words = content.role.trim().split(/\s+/);
   const editorialWord = words.pop() ?? content.role;
   const primaryWords = words.join(" ");
+  const revealed = reduceMotion || introReady;
 
   return (
     <section className="relative isolate grid min-h-svh overflow-hidden px-page pb-10 pt-28 lg:min-h-[100svh] lg:grid-cols-12 lg:grid-rows-[auto_1fr_auto] lg:pb-14 lg:pt-36" aria-labelledby="hero-title">
-      <div className="hairline absolute inset-x-page top-24 lg:top-28" />
-
-      <div className="relative z-20 my-auto py-16 sm:py-20 lg:col-span-10 lg:py-24">
-        <RevealText as="p" className="mb-5 text-label uppercase text-muted-foreground">{content.name}</RevealText>
+      <motion.div
+        className="relative z-20 my-auto py-16 sm:py-20 lg:col-span-10 lg:py-24"
+        initial="hidden"
+        animate={revealed ? "visible" : "hidden"}
+        variants={heroGroupVariants}
+      >
+        <RevealText as="p" trigger="intro" className="mb-5 text-label uppercase text-muted-foreground">{content.name}</RevealText>
         <h1 id="hero-title" className="max-w-[11ch] text-display font-medium leading-[0.82] tracking-[-0.07em]">
-          <RevealText>{primaryWords}&nbsp;</RevealText>
-          <RevealText>
+          <RevealText trigger="intro">{primaryWords}&nbsp;</RevealText>
+          <RevealText trigger="intro">
             <span className="font-serif font-normal italic tracking-[-0.045em]">{editorialWord}</span>
           </RevealText>
         </h1>
         <RevealText
           as="p"
+          trigger="intro"
           className="mt-8 max-w-sm text-balance text-base leading-relaxed text-muted-foreground sm:max-w-md lg:ml-[50%] lg:text-lg"
         >
           I shape precise digital experiences where technology, typography, and motion move as one.
         </RevealText>
-      </div>
+      </motion.div>
 
       <div
         ref={visualRef}
         data-testid="hero-visual"
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-[-18vw] bottom-[8%] top-[18%] z-0 opacity-70 sm:inset-x-[18%] sm:bottom-[2%] sm:top-[15%] lg:inset-y-[9%] lg:left-[43%] lg:right-[-3%] lg:opacity-90"
+        className="pointer-events-none absolute inset-x-[-18vw] bottom-0 top-[18%] z-0 sm:inset-x-[18%] sm:top-[15%] lg:top-[9%] lg:left-[43%] lg:right-[-3%]"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgb(243_241_234/9%),transparent_58%)]" />
-        {showWebGL ? (
-          <HeroSceneBoundary>
-            <Suspense fallback={<HeroFallback />}>
-              <LazyHeroScene inView={inView} />
-            </Suspense>
-          </HeroSceneBoundary>
-        ) : (
-          <HeroFallback />
+        {revealed && (
+          <motion.div
+            className="relative size-full opacity-70 lg:opacity-90"
+            initial={reduceMotion ? false : { opacity: 0, scale: 0.96, y: 24 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.9, ease: easeOutExpo, delay: reduceMotion ? 0 : 0.3 }}
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgb(243_241_234/9%),transparent_58%)]" />
+            {showWebGL ? (
+              <HeroSceneBoundary>
+                <Suspense fallback={<HeroFallback />}>
+                  <LazyHeroScene inView={inView} />
+                </Suspense>
+              </HeroSceneBoundary>
+            ) : (
+              <HeroFallback />
+            )}
+          </motion.div>
         )}
       </div>
 
-      <div className="relative z-20 grid items-end gap-6 text-label uppercase lg:col-span-12 lg:grid-cols-12">
+      <motion.div
+        className="relative z-20 grid items-end gap-6 text-label uppercase lg:col-span-12 lg:grid-cols-12"
+        initial="hidden"
+        animate={revealed ? "visible" : "hidden"}
+        variants={heroItemVariants}
+      >
         <MagneticLink className="group inline-flex w-fit items-center gap-3 lg:col-span-4" href="#projects">
           <span className="grid size-9 place-items-center rounded-full border border-white/25 transition-colors group-hover:bg-paper group-hover:text-ink">↓</span>
           Explore projects
         </MagneticLink>
-      </div>
+      </motion.div>
     </section>
   );
 }
