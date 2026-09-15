@@ -86,6 +86,20 @@
 html {
   scroll-behavior: auto;
   background: var(--ink);
+  /*
+    No scrollbar. The page is driven by scroll and the bar was the one piece of
+    system chrome sitting on top of a composition that runs to the edge.
+
+    What it took with it is a sense of how much page is left, so the navigation
+    carries that instead: the pill marks the section you are in and moves as you
+    travel. Scrolling itself is untouched, by wheel, keyboard, trackpad or
+    touch; only the drag handle is gone.
+  */
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
 }
 
 body {

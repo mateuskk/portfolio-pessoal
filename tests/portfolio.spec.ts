@@ -56,18 +56,50 @@ test('global scrolling keeps easing beyond the 1.65 second cutoff', async ({
 
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
   await page.waitForTimeout(300);
+
+  /**
+   * Timed from inside the page, by watching when the position last changed.
+   *
+   * It used to sample `window.scrollY` at 1700ms and again 120ms later and
+   * require the difference to be positive. That reads as a measure of the tail
+   * and is really a coin toss: the whole tail past 1.65s is about one pixel,
+   * `scrollY` reports whole pixels, so the assertion came down to whether that
+   * single increment happened to fall inside the sampled window. It passed and
+   * failed on identical builds all through a day's work, which is worse than no
+   * test, because a suite that cries wolf gets read as noise when something
+   * real breaks.
+   *
+   * This asks the question the name asks instead: at what moment does the page
+   * finally stop?
+   */
+  await page.evaluate(() => {
+    const store = window as unknown as { __rest?: number; __start?: number };
+    store.__start = performance.now();
+    store.__rest = performance.now();
+    let last = window.scrollY;
+    const watch = () => {
+      if (window.scrollY !== last) {
+        last = window.scrollY;
+        store.__rest = performance.now();
+      }
+      requestAnimationFrame(watch);
+    };
+    requestAnimationFrame(watch);
+  });
+
   await page.mouse.move(720, 450);
   await page.mouse.wheel(0, 1200);
+  await page.waitForTimeout(3000);
 
-  // The previous 1.65s setting had already stopped here. The slower global
-  // inertia must still be completing its tail, which is the softer, longer
+  const easedFor = await page.evaluate(() => {
+    const store = window as unknown as { __rest: number; __start: number };
+    return store.__rest - store.__start;
+  });
+
+  // The previous 1.65s setting had already come to rest by here. The slower
+  // global inertia has to still be moving past it, which is the softer, longer
   // response requested for ordinary page scrolling.
-  await page.waitForTimeout(1700);
-  const beforeTail = await page.evaluate(() => window.scrollY);
-  await page.waitForTimeout(120);
-  const afterTail = await page.evaluate(() => window.scrollY);
-
-  expect(afterTail - beforeTail).toBeGreaterThan(0.35);
+  expect(easedFor).toBeGreaterThan(1650);
 });
 
 test('global wheel input travels 65 percent of its raw distance', async ({
