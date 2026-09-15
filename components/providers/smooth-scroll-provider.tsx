@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import Lenis from "lenis";
 
 type SmoothScrollProviderProps = {
@@ -13,7 +20,30 @@ export function shouldUseSmoothScroll(preference: MotionPreference) {
   return preference.matches;
 }
 
+/**
+ * The running Lenis instance, or `null`.
+ *
+ * `null` is a real state, not just an initial one: under reduced motion no
+ * instance is created at all. Anything built on top of Lenis — the project
+ * snapping, for one — therefore switches itself off for those readers without
+ * needing a branch of its own.
+ */
+const LenisContext = createContext<Lenis | null>(null);
+
+export function useLenisInstance() {
+  return useContext(LenisContext);
+}
+
 export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
+  const [instance, setInstance] = useState<Lenis | null>(null);
+
+  useLayoutEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     const preference = window.matchMedia("(prefers-reduced-motion: no-preference)");
     let lenis: Lenis | null = null;
@@ -23,6 +53,7 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
       window.cancelAnimationFrame(frame);
       lenis?.destroy();
       lenis = null;
+      setInstance(null);
     };
 
     const start = () => {
@@ -31,10 +62,13 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
       lenis = new Lenis({
         anchors: true,
         autoRaf: false,
-        duration: 1.08,
+        // A longer tail gives ordinary page movement more weight without
+        // changing the dedicated timing used by section and project snaps.
+        duration: 1.9,
         easing: (time) => Math.min(1, 1.001 - Math.pow(2, -10 * time)),
         smoothWheel: true,
         syncTouch: false,
+        wheelMultiplier: 0.65,
       });
 
       const update = (time: number) => {
@@ -43,6 +77,7 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
       };
 
       frame = window.requestAnimationFrame(update);
+      setInstance(lenis);
     };
 
     const syncPreference = () => {
@@ -59,5 +94,5 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     };
   }, []);
 
-  return children;
+  return <LenisContext.Provider value={instance}>{children}</LenisContext.Provider>;
 }

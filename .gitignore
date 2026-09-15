@@ -1,5 +1,4 @@
 .worktrees/
-.superpowers/
 node_modules/
 .npm-cache/
 .next/
@@ -19,3 +18,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+
+# Ferramentas e saídas locais que nao pertencem ao repositorio.
+.dev-server.log
+.dev-server.err.log
+tsconfig.tsbuildinfo

@@ -1,10 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, type RefObject } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-import { getSculptureRevealPose } from '@/lib/hero-sculpture-motion';
+import {
+  getNormalizedVisualPointer,
+  getSculpturePointerPose,
+  getSculptureRevealPose,
+} from '@/lib/hero-sculpture-motion';
 import { createStudioEnvironmentTexture } from '@/lib/studio-environment';
 
 function StudioEnvironment() {
@@ -15,7 +19,19 @@ function StudioEnvironment() {
   return <primitive attach="environment" object={texture} />;
 }
 
-function Sculpture({ active }: { active: boolean }) {
+type PointerPosition = {
+  active: boolean;
+  x: number;
+  y: number;
+};
+
+function Sculpture({
+  active,
+  pointer,
+}: {
+  active: boolean;
+  pointer: RefObject<PointerPosition>;
+}) {
   const group = useRef<THREE.Group>(null);
   const revealProgress = useRef(0);
 
@@ -30,20 +46,34 @@ function Sculpture({ active }: { active: boolean }) {
       delta,
     );
     const revealPose = getSculptureRevealPose(revealProgress.current);
-    const targetX = THREE.MathUtils.clamp(-state.pointer.y * 0.16, -0.16, 0.16);
-    const targetY = THREE.MathUtils.clamp(state.pointer.x * 0.16, -0.16, 0.16);
+    const pointerPose = getSculpturePointerPose(
+      pointer.current.x,
+      pointer.current.y,
+      active && pointer.current.active,
+    );
 
-    sculpture.position.x = revealPose.x;
+    sculpture.position.x = THREE.MathUtils.damp(
+      sculpture.position.x,
+      revealPose.x + pointerPose.x,
+      4,
+      delta,
+    );
+    sculpture.position.y = THREE.MathUtils.damp(
+      sculpture.position.y,
+      pointerPose.y,
+      4,
+      delta,
+    );
     sculpture.scale.setScalar(revealPose.scale);
     sculpture.rotation.x = THREE.MathUtils.damp(
       sculpture.rotation.x,
-      targetX - 0.18,
+      pointerPose.rotationX - 0.18,
       4,
       delta,
     );
     sculpture.rotation.y = THREE.MathUtils.damp(
       sculpture.rotation.y,
-      targetY + 0.22,
+      pointerPose.rotationY + 0.22,
       4,
       delta,
     );
@@ -77,13 +107,58 @@ type HeroSceneProps = {
   active?: boolean;
   inView?: boolean;
   onReady?: () => void;
+  pointerTarget?: RefObject<HTMLElement | null>;
 };
 
 export function HeroScene({
   active = true,
   inView = true,
   onReady,
+  pointerTarget,
 }: HeroSceneProps) {
+  const pointer = useRef<PointerPosition>({ active: false, x: 0, y: 0 });
+
+  useEffect(() => {
+    const target = pointerTarget?.current;
+    if (!target) return;
+
+    const reset = () => {
+      pointer.current = { active: false, x: 0, y: 0 };
+    };
+    const follow = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') {
+        reset();
+        return;
+      }
+
+      const bounds = target.getBoundingClientRect();
+      const position = getNormalizedVisualPointer(
+        event.clientX,
+        event.clientY,
+        bounds,
+      );
+      if (!position) {
+        reset();
+        return;
+      }
+
+      pointer.current = {
+        active: true,
+        ...position,
+      };
+    };
+
+    window.addEventListener('pointermove', follow, { passive: true });
+    window.addEventListener('blur', reset);
+    document.documentElement.addEventListener('pointerleave', reset);
+
+    return () => {
+      window.removeEventListener('pointermove', follow);
+      window.removeEventListener('blur', reset);
+      document.documentElement.removeEventListener('pointerleave', reset);
+    };
+  }, [pointerTarget]);
+
   return (
     <Canvas
       aria-hidden="true"
@@ -104,7 +179,7 @@ export function HeroScene({
       <pointLight color="#a3a3a3" intensity={12} position={[-4, -1, 3]} />
       <pointLight color="#ffffff" intensity={7} position={[0, -4, -2]} />
       <StudioEnvironment />
-      <Sculpture active={active} />
+      <Sculpture active={active} pointer={pointer} />
     </Canvas>
   );
 }

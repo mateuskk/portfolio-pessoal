@@ -1,18 +1,23 @@
 type SiteFooterProps = {
   name: string;
-  location: string;
 };
 
-export function SiteFooter({ name, location }: SiteFooterProps) {
+export function SiteFooter({ name }: SiteFooterProps) {
   return (
-    <footer className="border-t border-black/20 bg-paper px-page py-7 text-ink">
-      <div className="grid gap-5 text-label uppercase tracking-[0.14em] sm:grid-cols-3 sm:items-center">
-        <p>© {new Date().getFullYear()} {name}</p>
-        <p className="text-black/55 sm:text-center">{location}</p>
-        <a className="focus-ring w-fit border-b border-black/25 pb-1 transition-colors hover:border-black sm:justify-self-end" href="#main-content">
-          Back to top ↑
-        </a>
-      </div>
+    /*
+      `--footer-h` tall, and the contact section above subtracts the same
+      variable from its own height so the two together come to one screen. The
+      number lives in `globals.css` because both of them need it and a short
+      screen changes it.
+
+      No rule across the top: with the copyright reading as the bottom corner of
+      that screen rather than as a separate band, a line would cut the
+      composition in half.
+    */
+    <footer className="flex h-[var(--footer-h)] items-center justify-center bg-paper px-page text-ink">
+      <p className="text-center text-label uppercase tracking-[0.14em]">
+        © {new Date().getFullYear()} {name}
+      </p>
     </footer>
   );
 }

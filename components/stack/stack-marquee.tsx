@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef, useState } from "react";
 import { motion, useAnimationFrame, useMotionValue, useScroll, useSpring, useTransform, useVelocity } from "motion/react";
 
 import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
@@ -8,7 +7,6 @@ import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preferenc
 type StackMarqueeProps = {
   items: string[];
   direction: 1 | -1;
-  name: "primary" | "secondary";
 };
 
 export function getMarqueeStep(deltaMs: number, scrollVelocity: number, direction: 1 | -1) {
@@ -16,18 +14,15 @@ export function getMarqueeStep(deltaMs: number, scrollVelocity: number, directio
   return (deltaMs / 1000) * speed * direction;
 }
 
-export function StackMarquee({ items, direction, name }: StackMarqueeProps) {
+export function StackMarquee({ items, direction }: StackMarqueeProps) {
   const reduceMotion = useReducedMotionPreference();
-  const hovered = useRef(false);
-  const [focusPaused, setFocusPaused] = useState(false);
-  const [manualPaused, setManualPaused] = useState(false);
   const position = useMotionValue(direction === 1 ? -50 : 0);
   const x = useTransform(position, (value) => `${value}%`);
   const { scrollY } = useScroll();
   const velocity = useSpring(useVelocity(scrollY), { damping: 34, stiffness: 170 });
 
   useAnimationFrame((_time, delta) => {
-    if (hovered.current || focusPaused || manualPaused || reduceMotion) return;
+    if (reduceMotion) return;
 
     let next = position.get() + getMarqueeStep(delta, velocity.get(), direction);
     if (direction === 1 && next >= 0) next = -50;
@@ -38,22 +33,7 @@ export function StackMarquee({ items, direction, name }: StackMarqueeProps) {
   if (reduceMotion) return null;
 
   return (
-    <div
-      className="group relative overflow-hidden border-y border-white/15 py-5 sm:py-7"
-      onMouseEnter={() => { hovered.current = true; }}
-      onMouseLeave={() => { hovered.current = false; }}
-    >
-      <button
-        type="button"
-        aria-label={`${manualPaused ? "Resume" : "Pause"} ${name} technology rail`}
-        aria-pressed={manualPaused}
-        className="focus-ring absolute right-3 top-3 z-10 rounded-full border border-white/20 bg-ink/85 px-3 py-2 text-label uppercase text-muted-foreground opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 focus:opacity-100"
-        onClick={() => setManualPaused((paused) => !paused)}
-        onFocus={() => setFocusPaused(true)}
-        onBlur={() => setFocusPaused(false)}
-      >
-        {manualPaused ? "Resume" : "Pause"}
-      </button>
+    <div className="overflow-hidden border-y border-white/15 py-5 sm:py-7">
       <motion.div aria-hidden="true" className="flex w-max will-change-transform" style={{ x }}>
         {[0, 1].map((copy) => (
           <ul key={copy} className="flex shrink-0 items-center gap-7 pr-7 sm:gap-10 sm:pr-10">

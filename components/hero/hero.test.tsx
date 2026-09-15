@@ -1,23 +1,31 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { completeIntro, startIntro } from "@/lib/intro";
 import { getHeroVisualAnimation, Hero } from "./hero";
 
+const heroSceneSpy = vi.hoisted(() => vi.fn((_props: unknown) => null));
+
+vi.mock("./hero-scene", () => ({ HeroScene: heroSceneSpy }));
+
 describe("Hero", () => {
-  beforeEach(() => startIntro());
+  beforeEach(() => {
+    startIntro();
+    heroSceneSpy.mockClear();
+  });
 
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
 
-  it("keeps identity and the primary project action available without WebGL", () => {
+  it("keeps identity and the visual stage available without WebGL", () => {
     render(
       <Hero
         content={{
           name: "Seu Nome",
           role: "Creative Developer",
+          intro: "Olá, eu sou Mateus Bastos.",
           location: "São Paulo, BR",
           availability: "Available for selected projects",
         }}
@@ -25,7 +33,6 @@ describe("Hero", () => {
     );
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Creative Developer");
-    expect(screen.getByRole("link", { name: /explore projects/i })).toHaveAttribute("href", "#projects");
     expect(screen.getByTestId("hero-visual")).toHaveAttribute("aria-hidden", "true");
   });
 
@@ -41,13 +48,14 @@ describe("Hero", () => {
         content={{
           name: "Seu Nome",
           role: "Creative Developer",
+          intro: "Olá, eu sou Mateus Bastos.",
           location: "São Paulo, BR",
           availability: "Available for selected projects",
         }}
       />,
     );
 
-    expect(screen.getByText(/I shape precise digital experiences/i)).not.toHaveStyle({ opacity: "0" });
+    expect(screen.getByText(/Olá, eu sou Mateus Bastos/i)).not.toHaveStyle({ opacity: "0" });
   });
 
   it("keeps the original typography container free from layout transforms", () => {
@@ -55,7 +63,8 @@ describe("Hero", () => {
       <Hero
         content={{
           name: "Seu Nome",
-          role: "Creative Developer",
+          role: "FullStack Developer",
+          intro: "Olá, eu sou Mateus Bastos.",
           location: "São Paulo, BR",
           availability: "Available for selected projects",
         }}
@@ -63,9 +72,18 @@ describe("Hero", () => {
     );
 
     const heading = screen.getByRole("heading", { level: 1 });
-    expect(heading).toHaveClass("text-display", "font-medium");
+    expect(heading).toHaveTextContent("FullStack Developer");
+    expect(heading).toHaveClass("font-display", "font-medium", "leading-[0.66]");
     expect(heading.parentElement).not.toHaveStyle({ transform: "translateY(18px)" });
-    expect(screen.getByText("Developer")).toHaveClass("font-serif", "italic");
+    expect(screen.getByTestId("hero-split-primary")).toBeInTheDocument();
+    const editorialWrapper = screen.getByTestId("hero-split-editorial");
+    expect(editorialWrapper).toHaveClass("-mt-[0.26em]");
+    const editorial = editorialWrapper.querySelector(".font-serif");
+    expect(editorial).toHaveTextContent("Developer");
+    expect(editorial).toHaveClass("font-serif", "italic", "text-paper/80");
+    const intro = screen.getByTestId("hero-split-intro").querySelector("p");
+    expect(intro).toHaveTextContent("Olá, eu sou Mateus Bastos");
+    expect(intro).toHaveClass("text-pretty", "text-center", "tracking-[-0.01em]");
   });
 
   it("reveals the 3D stage with a clean mask and never scales its canvas container", () => {
@@ -98,6 +116,7 @@ describe("Hero", () => {
         content={{
           name: "Seu Nome",
           role: "Creative Developer",
+          intro: "Olá, eu sou Mateus Bastos.",
           location: "São Paulo, BR",
           availability: "Available for selected projects",
         }}
@@ -105,5 +124,34 @@ describe("Hero", () => {
     );
 
     expect(container.querySelector('[data-testid="hero-visual"] .rounded-full')).not.toBeInTheDocument();
+  });
+
+  it("limits desktop pointer interaction to the 3D visual stage", async () => {
+    completeIntro();
+    vi.stubGlobal("WebGLRenderingContext", class WebGLRenderingContext {});
+    vi.spyOn(window, "matchMedia").mockImplementation((query) => ({
+      matches: query.includes("min-width: 768px"),
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+    }) as unknown as MediaQueryList);
+
+    render(
+      <Hero
+        content={{
+          name: "Seu Nome",
+          role: "Creative Developer",
+          intro: "Olá, eu sou Mateus Bastos.",
+          location: "São Paulo, BR",
+          availability: "Available for selected projects",
+        }}
+      />,
+    );
+
+    await waitFor(() => expect(heroSceneSpy).toHaveBeenCalled());
+
+    const sceneProps = heroSceneSpy.mock.lastCall?.[0] as {
+      pointerTarget?: { current: HTMLElement | null };
+    };
+    expect(sceneProps.pointerTarget?.current).toBe(screen.getByTestId("hero-visual"));
   });
 });

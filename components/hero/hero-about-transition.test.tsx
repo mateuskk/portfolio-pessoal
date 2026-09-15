@@ -7,9 +7,12 @@ import { HeroAboutTransition, isHeroSplitReady } from './hero-about-transition';
 const content = {
   person: {
     name: 'Seu Nome',
+    initials: 'SN',
     role: 'Creative Developer',
+    intro: 'Olá, eu sou Mateus Bastos.',
     location: 'São Paulo, BR',
     availability: 'Available for selected projects',
+    portrait: null,
   },
   about: {
     statement: 'Clarity and character, built together.',
@@ -83,11 +86,31 @@ describe('HeroAboutTransition', () => {
       screen.getByRole('heading', { level: 1, name: /creative.*developer/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: 'About me' }),
+      screen.getByRole('heading', { level: 2, name: 'About' }),
     ).toBeInTheDocument();
     expect(screen.getByTestId('hero-split-panel-top')).toBeInTheDocument();
     expect(screen.getByTestId('hero-split-panel-bottom')).toBeInTheDocument();
     expect(container.querySelectorAll('.sticky > span')).toHaveLength(2);
+  });
+
+  it('holds the about copy hidden while the split panels are still opening', () => {
+    const { container } = render(
+      <HeroAboutTransition person={content.person} about={content.about} />,
+    );
+
+    expect(container.querySelector('#about')).toHaveAttribute(
+      'data-revealed',
+      'false',
+    );
+  });
+
+  it('keeps the normal-flow about surface transparent while the split panels are opening', () => {
+    const { container } = render(
+      <HeroAboutTransition person={content.person} about={content.about} />,
+    );
+
+    const aboutSurface = container.querySelector('#about')?.parentElement;
+    expect(aboutSurface).not.toHaveClass('bg-paper');
   });
 
   it('activates scrolling only after the loader, visual, and hero entrance have settled', async () => {

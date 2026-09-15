@@ -27,6 +27,7 @@
   --color-graphite: var(--graphite);
   --color-paper: var(--paper);
   --font-sans: var(--font-inter);
+  --font-display: var(--font-inter-tight);
   --font-serif: var(--font-instrument-serif);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -61,9 +62,20 @@
   --ring: var(--paper);
   --radius: 0.75rem;
   --page-gutter: clamp(1.25rem, 4vw, 4.5rem);
+  /*
+    The copyright strip, and the amount the contact section gives up so that the
+    two together come to exactly one screen. One value rather than two, because
+    they only work while they agree: it was 4rem written twice, once as a height
+    and once inside a `calc`, and a short screen needed the pair to change.
+  */
+  --footer-h: 4rem;
   --ease-weighted: cubic-bezier(0.22, 1, 0.36, 1);
   --display-size: clamp(4.15rem, 11.8vw, 12rem);
   --section-size: clamp(3.5rem, 8vw, 8.5rem);
+}
+
+@media (max-height: 420px) {
+  :root { --footer-h: 2.75rem; }
 }
 
 * {

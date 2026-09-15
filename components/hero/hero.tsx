@@ -10,6 +10,7 @@ import {
   useState,
   type ErrorInfo,
   type ReactNode,
+  type RefObject,
 } from 'react';
 import {
   motion,
@@ -18,9 +19,13 @@ import {
   type MotionValue,
 } from 'motion/react';
 
-import { MagneticLink } from '@/components/ui/magnetic-link';
-import { RevealText } from '@/components/ui/reveal-text';
+import { BlurInText } from '@/components/ui/blur-in-text';
+import {
+  CharRevealText,
+  getCharRevealSequenceDelay,
+} from '@/components/ui/char-reveal-text';
 import { useIntroReady } from '@/hooks/use-intro-ready';
+import { useIsHandheld } from '@/hooks/use-is-handheld';
 import { useReducedMotionPreference } from '@/hooks/use-reduced-motion-preference';
 import { easeOutExpo } from '@/lib/motion';
 import { cn } from '@/lib/utils';
@@ -34,7 +39,7 @@ const LazyHeroScene = lazy(() =>
 type HeroProps = {
   content: Pick<
     PortfolioContent['person'],
-    'name' | 'role' | 'location' | 'availability'
+    'name' | 'role' | 'intro' | 'location' | 'availability'
   >;
   contained?: boolean;
   onVisualReady?: () => void;
@@ -66,7 +71,17 @@ function useHeroSceneMode() {
   const [mode, setMode] = useState<HeroSceneMode>('pending');
 
   useEffect(() => {
-    const desktop = window.matchMedia('(min-width: 768px)');
+    /*
+      The same question the rest of the page asks, and for the same reason: a
+      phone turned sideways clears `min-width: 768px` and was lighting up a
+      WebGL canvas on the device least able to carry one.
+    */
+    /*
+      No WebGL on anything held in the hand. An iPad clears any width test worth
+      writing, and on one the canvas was laid over the title rather than behind
+      it; on a phone it is simply the most expensive thing on the page.
+    */
+    const desktop = window.matchMedia('(min-width: 768px) and (pointer: fine)');
     const motionPreference = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     );
@@ -89,8 +104,7 @@ function useHeroSceneMode() {
   return mode;
 }
 
-function useInView(active: boolean) {
-  const ref = useRef<HTMLDivElement>(null);
+function useInView(active: boolean, ref: RefObject<HTMLElement | null>) {
   const [inView, setInView] = useState(true);
 
   useEffect(() => {
@@ -103,23 +117,10 @@ function useInView(active: boolean) {
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [active]);
+  }, [active, ref]);
 
-  return { ref, inView };
+  return inView;
 }
-
-const getHeroItem = (reduceMotion: boolean) => ({
-  hidden: reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: reduceMotion ? 0 : 0.75,
-      ease: easeOutExpo,
-      delay: reduceMotion ? 0 : 0.55,
-    },
-  },
-});
 
 export function getHeroVisualAnimation(reduceMotion: boolean, revealed = true) {
   const hidden = { opacity: 0, clipPath: 'inset(0 0 0 18%)' };
@@ -144,16 +145,17 @@ export function Hero({
 }: HeroProps) {
   const sceneMode = useHeroSceneMode();
   const showWebGL = sceneMode === 'webgl';
-  const { ref: visualRef, inView } = useInView(showWebGL);
+  const heroRef = useRef<HTMLElement>(null);
+  const visualRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(showWebGL, heroRef);
   const reduceMotion = useReducedMotionPreference();
+  const handheld = useIsHandheld();
   const introReady = useIntroReady();
-  const heroItemVariants = useMemo(
-    () => getHeroItem(reduceMotion),
-    [reduceMotion],
-  );
   const words = content.role.trim().split(/\s+/);
   const editorialWord = words.pop() ?? content.role;
   const primaryWords = words.join(' ');
+  const primaryDelay = 0.12;
+  const editorialDelay = getCharRevealSequenceDelay(primaryWords, primaryDelay);
   const revealed = reduceMotion || introReady;
   const heroVisualAnimation = useMemo(
     () => getHeroVisualAnimation(reduceMotion, revealed),
@@ -161,8 +163,6 @@ export function Hero({
   );
   const restingProgress = useMotionValue(0);
   const transitionProgress = splitProgress ?? restingProgress;
-  const eyebrowX = useTransform(transitionProgress, [0, 1], ['0vw', '-7.2vw']);
-  const eyebrowY = useTransform(transitionProgress, [0, 1], ['0svh', '-18svh']);
   const primaryX = useTransform(transitionProgress, [0, 1], ['0vw', '-3.6vw']);
   const primaryY = useTransform(transitionProgress, [0, 1], ['0svh', '-13svh']);
   const editorialX = useTransform(transitionProgress, [0, 1], ['0vw', '13vw']);
@@ -176,8 +176,6 @@ export function Hero({
     [0, 1],
     ['0svh', '10.8svh'],
   );
-  const actionX = useTransform(transitionProgress, [0, 1], ['0vw', '7.2vw']);
-  const actionY = useTransform(transitionProgress, [0, 1], ['0svh', '14.4svh']);
   const visualX = useTransform(transitionProgress, [0, 1], ['0vw', '6vw']);
   const visualY = useTransform(transitionProgress, [0, 1], ['0svh', '-4svh']);
 
@@ -187,6 +185,7 @@ export function Hero({
 
   return (
     <section
+      ref={heroRef}
       className={cn(
         'relative isolate grid overflow-hidden px-page',
         contained
@@ -200,59 +199,67 @@ export function Hero({
       <div
         className={cn(
           'relative z-20 my-auto lg:col-span-10',
-          contained ? 'py-10 sm:py-12 lg:py-14' : 'py-16 sm:py-20 lg:py-24',
+          contained
+            ? 'translate-y-6 py-10 sm:translate-y-8 sm:py-12 lg:translate-y-10 lg:py-14'
+            : 'translate-y-12 py-16 sm:translate-y-16 sm:py-20 lg:translate-y-24 lg:py-24',
         )}
       >
-        <motion.div
-          data-testid="hero-split-eyebrow"
-          style={{ x: eyebrowX, y: eyebrowY, willChange: 'transform' }}
-        >
-          <RevealText
-            as="p"
-            trigger="intro"
-            className="mb-5 text-label uppercase text-muted-foreground"
-          >
-            {content.name}
-          </RevealText>
-        </motion.div>
         <h1
           id="hero-title"
-          className="max-w-[11ch] text-display font-medium leading-[0.82] tracking-[-0.07em]"
+          aria-label={content.role}
+          /*
+            Centred on a phone whichever way it is held.
+
+            `sm:text-left` is a width test, and a handset turned sideways is
+            844px across, so the title swung back to the left margin the moment
+            anyone rotated. The alignment follows the same question the rest of
+            the page asks about phones instead. `sm:text-display` stays: that is
+            a size, not an alignment.
+          */
+          className={cn(
+            "mx-auto max-w-[12ch] text-center font-display text-[clamp(3.2rem,14vw,12rem)] font-medium leading-[0.66] tracking-[-0.075em] sm:text-display",
+            !handheld && "sm:mx-0 sm:text-left",
+          )}
         >
           <motion.span
             data-testid="hero-split-primary"
             className="block"
             style={{ x: primaryX, y: primaryY, willChange: 'transform' }}
           >
-            <RevealText delay={0.12} trigger="intro">
-              {primaryWords}&nbsp;
-            </RevealText>
+            <CharRevealText delay={primaryDelay} trigger="intro">
+              {`${primaryWords} `}
+            </CharRevealText>
           </motion.span>
           <motion.span
             data-testid="hero-split-editorial"
-            className="block"
+            className="-mt-[0.26em] block pl-[0.02em]"
             style={{ x: editorialX, willChange: 'transform' }}
           >
-            <RevealText delay={0.24} trigger="intro">
-              <span className="font-serif font-normal italic tracking-[-0.045em]">
-                {editorialWord}
-              </span>
-            </RevealText>
+            <CharRevealText
+              delay={editorialDelay}
+              trigger="intro"
+              className="font-serif font-normal italic tracking-[-0.055em] text-paper/80"
+            >
+              {editorialWord}
+            </CharRevealText>
           </motion.span>
         </h1>
         <motion.div
-          data-testid="hero-split-description"
+          data-testid="hero-split-intro"
           style={{ x: descriptionX, y: descriptionY, willChange: 'transform' }}
+          className="mt-16 lg:mt-24"
         >
-          <RevealText
+          <BlurInText
             as="p"
-            delay={0.42}
+            delay={0.36}
             trigger="intro"
-            className="mt-8 max-w-sm text-balance text-base leading-relaxed text-muted-foreground sm:max-w-md lg:ml-[50%] lg:text-lg"
+            className={cn(
+              "mx-auto max-w-xl text-pretty text-center text-[1.75rem] font-medium leading-tight tracking-[-0.01em] text-paper/65",
+              !handheld && "sm:mx-0",
+            )}
           >
-            I shape precise digital experiences where technology, typography,
-            and motion move as one.
-          </RevealText>
+            {content.intro}
+          </BlurInText>
         </motion.div>
       </div>
 
@@ -260,7 +267,22 @@ export function Hero({
         ref={visualRef}
         data-testid="hero-visual"
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-[-18vw] bottom-[8%] top-[18%] z-0 opacity-70 sm:inset-x-[18%] sm:bottom-[2%] sm:top-[15%] lg:inset-y-[9%] lg:left-[43%] lg:right-[-3%] lg:opacity-90"
+        /*
+          Full bleed on anything held in the hand.
+
+          From `sm` up this becomes the right-hand column of the desktop's
+          side-by-side composition, and that is a width test: on a tablet in
+          portrait it came out as a 619px band starting 444px in, with a hard
+          left edge across an otherwise flat black, and the centred title
+          sitting over it. Below `sm` it is inset by -18vw instead, spilling
+          past both edges so there is no edge to see — which is the right
+          behaviour for every handheld, not only for a narrow one.
+        */
+        className={cn(
+          "pointer-events-none absolute inset-x-[-18vw] bottom-[8%] top-[18%] z-0 opacity-70",
+          !handheld &&
+            "sm:inset-x-[18%] sm:bottom-[2%] sm:top-[15%] lg:inset-y-[9%] lg:left-[43%] lg:right-[-3%] lg:opacity-90",
+        )}
         style={{ x: visualX, y: visualY, willChange: 'transform' }}
       >
         <motion.div
@@ -277,35 +299,13 @@ export function Hero({
                   active={revealed}
                   inView={inView}
                   onReady={onVisualReady}
+                  pointerTarget={visualRef}
                 />
               </Suspense>
             </HeroSceneBoundary>
           ) : sceneMode === 'fallback' ? (
             <HeroFallback />
           ) : null}
-        </motion.div>
-      </motion.div>
-
-      <motion.div
-        data-testid="hero-split-action"
-        className="relative z-20 lg:col-span-12"
-        style={{ x: actionX, y: actionY, willChange: 'transform' }}
-      >
-        <motion.div
-          className="grid items-end gap-6 text-label uppercase lg:grid-cols-12"
-          initial="hidden"
-          animate={revealed ? 'visible' : 'hidden'}
-          variants={heroItemVariants}
-        >
-          <MagneticLink
-            className="group inline-flex w-fit items-center gap-3 lg:col-span-4"
-            href="#projects"
-          >
-            <span className="grid size-9 place-items-center rounded-full border border-white/25 transition-colors group-hover:bg-paper group-hover:text-ink">
-              ↓
-            </span>
-            Explore projects
-          </MagneticLink>
         </motion.div>
       </motion.div>
     </section>

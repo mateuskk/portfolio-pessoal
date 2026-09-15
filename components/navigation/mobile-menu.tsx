@@ -6,7 +6,9 @@ import { motion, stagger } from "motion/react";
 import type { NavItem } from "@/content/portfolio";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
+import { useArcReveal } from "@/components/navigation/arc-reveal";
 import { easeOutExpo } from "@/lib/motion";
+import { useCopy } from "@/components/providers/language-provider";
 
 type MobileMenuProps = {
   items: NavItem[];
@@ -20,6 +22,8 @@ export function getMobileMenuMotionStyle(reduceMotion: boolean | null): CSSPrope
 
 export function MobileMenu({ items, open, onOpenChange }: MobileMenuProps) {
   const reduceMotion = useReducedMotionPreference();
+  const navigateWithArc = useArcReveal();
+  const copy = useCopy();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -27,12 +31,12 @@ export function MobileMenu({ items, open, onOpenChange }: MobileMenuProps) {
         render={
           <button
             type="button"
-            aria-label={open ? "Close menu" : "Open menu"}
-            className="relative z-[70] grid size-10 place-items-center rounded-full border border-white/15 bg-ink text-paper md:hidden"
+            aria-label={open ? copy.closeMenu : copy.openMenu}
+            className="relative z-[70] grid size-10 place-items-center rounded-full border border-white/15 bg-ink text-paper [@media(pointer:coarse)]:size-11 md:hidden"
           />
         }
       >
-        <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
+        <span className="sr-only">{open ? copy.closeMenu : copy.openMenu}</span>
         <span aria-hidden="true" className="relative block h-3.5 w-4">
           <motion.span
             className="absolute left-0 top-1 block h-px w-4 bg-current"
@@ -52,8 +56,8 @@ export function MobileMenu({ items, open, onOpenChange }: MobileMenuProps) {
         style={getMobileMenuMotionStyle(reduceMotion)}
         className="fixed inset-x-0 bottom-0 top-[4.75rem] z-[60] flex max-w-none translate-x-0 translate-y-0 flex-col justify-end overflow-hidden rounded-none border-x-0 border-b-0 border-white/15 bg-ink px-6 pb-8 pt-16 text-paper shadow-2xl ring-0 transition-[clip-path,opacity] duration-500 ease-expo-out data-open:animate-none data-closed:animate-none data-starting-style:opacity-80 data-ending-style:opacity-80 data-starting-style:[clip-path:inset(0_0_100%_0)] data-ending-style:[clip-path:inset(0_0_100%_0)] md:hidden"
       >
-        <DialogTitle className="sr-only">Navigation</DialogTitle>
-        <nav aria-label="Mobile navigation">
+        <DialogTitle className="sr-only">{copy.navigationTitle}</DialogTitle>
+        <nav aria-label={copy.mobileNavigation}>
           <motion.ul
             className="border-t border-white/15"
             initial={reduceMotion ? false : "closed"}
@@ -75,7 +79,10 @@ export function MobileMenu({ items, open, onOpenChange }: MobileMenuProps) {
                 <a
                   href={item.href}
                   className="focus-ring block py-5 text-[clamp(2.7rem,14vw,5.5rem)] leading-none tracking-[-0.055em]"
-                  onClick={() => onOpenChange(false)}
+                  onClick={(event) => {
+                    onOpenChange(false);
+                    if (navigateWithArc(item.href, item.label)) event.preventDefault();
+                  }}
                 >
                   {item.label}
                 </a>
@@ -83,7 +90,7 @@ export function MobileMenu({ items, open, onOpenChange }: MobileMenuProps) {
             ))}
           </motion.ul>
         </nav>
-        <p className="mt-8 text-label uppercase text-muted-foreground">Menu / Portfolio 2026</p>
+        <p className="mt-8 text-label uppercase text-muted-foreground">{copy.menuTitle}</p>
       </DialogContent>
     </Dialog>
   );

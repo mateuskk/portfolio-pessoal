@@ -6,7 +6,8 @@ import { motion } from "motion/react";
 import { useIntroReady } from "@/hooks/use-intro-ready";
 import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import { cn } from "@/lib/utils";
-import { getIntroRevealItem, revealItem } from "@/lib/motion";
+import { getIntroRevealItem, revealItem, scrollRevealViewport } from "@/lib/motion";
+import { useLanguage } from "@/components/providers/language-provider";
 
 type RevealTextProps = {
   children: ReactNode;
@@ -17,6 +18,7 @@ type RevealTextProps = {
 };
 
 export function RevealText({ children, className, as = "span", delay = 0, trigger = "viewport" }: RevealTextProps) {
+  const { language } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const introReady = useIntroReady();
   const reduceMotion = useReducedMotionPreference();
@@ -33,12 +35,29 @@ export function RevealText({ children, className, as = "span", delay = 0, trigge
   const MotionElement = motion[as];
   const Wrapper = as === "span" ? "span" : "div";
 
+  /**
+   * The clip box carries the caller's classes, and the text inherits them.
+   *
+   * It used to be the other way round, and the `0.18em` of breathing room then
+   * resolved against whatever font size the *parent* happened to have rather
+   * than the text's own. Under a heading sized by a `clamp`, that came to
+   * 2.88px where it needed 27, and the descenders of "project" were sheared off
+   * nine pixels short — the box was doing its job, just at a sixteenth of the
+   * size it was asked for.
+   *
+   * The negative margin still cancels the padding, so nothing about the layout
+   * moves; the clip simply reaches past the baseline as far as it always meant
+   * to.
+   */
+  const clipClassName = cn("block overflow-hidden py-[0.18em] -my-[0.18em]", className);
+
   if (trigger === "intro") {
     return (
-      <Wrapper className="block overflow-hidden py-[0.18em] -my-[0.18em]">
+      <Wrapper className={clipClassName}>
         <MotionElement
+        key={language}
           animate={introReady ? "visible" : "hidden"}
-          className={staticClassName}
+          className="block"
           initial="hidden"
           variants={introVariants}
         >
@@ -49,12 +68,13 @@ export function RevealText({ children, className, as = "span", delay = 0, trigge
   }
 
   return (
-    <Wrapper className="block overflow-hidden py-[0.18em] -my-[0.18em]">
+    <Wrapper className={clipClassName}>
       <MotionElement
-        className={staticClassName}
+        key={language}
+        className="block"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: "some" }}
+        viewport={scrollRevealViewport}
         variants={revealItem}
       >
         {children}
