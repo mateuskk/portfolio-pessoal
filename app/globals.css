@@ -122,7 +122,12 @@ body::before {
 
 .px-page { padding-inline: var(--page-gutter); }
 .inset-x-page { left: var(--page-gutter); right: var(--page-gutter); }
-.text-display { font-size: var(--display-size); }
+/*
+  `--display-size` has no class of its own: the hero reaches for the variable
+  directly, so that Tailwind generates the utility and its `sm:` variant. A
+  hand-written `.text-display` did exist, and was the bug — it looked like a
+  utility at the call site and Tailwind never emitted a prefixed version of it.
+*/
 .text-section { font-size: var(--section-size); }
 .text-label { font-size: 0.6875rem; line-height: 1.4; letter-spacing: 0.13em; }
 .hairline { height: 1px; background: var(--border); }

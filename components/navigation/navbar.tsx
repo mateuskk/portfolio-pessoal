@@ -233,7 +233,15 @@ export function Navbar({ items, initials }: NavbarProps) {
           </MagneticLink>
         </motion.div>
 
-        <motion.ul className="hidden items-center gap-1 md:flex" variants={getNavbarLinks(reduceMotion)}>
+        {/*
+          The size lives here rather than on the bar.
+
+          `text-label` is set on the nav itself and reaches everything inside
+          it, the language control and the burger included. Those are controls
+          and read better small; only the section links needed the extra size,
+          so only the section links get it.
+        */}
+        <motion.ul className="hidden items-center gap-1 text-[0.8125rem] md:flex" variants={getNavbarLinks(reduceMotion)}>
           {items.map((item) => {
             const isActive = activeSection === item.href.slice(1);
             return (

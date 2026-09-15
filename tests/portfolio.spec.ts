@@ -171,6 +171,37 @@ test('the mark is written stroke by stroke, not switched on', async ({
   expect(untouchedBowls.length).toBeGreaterThan(5);
 });
 
+/**
+ * The desktop size has to actually reach the title.
+ *
+ * It did not, for a long time, and nothing said so: the class named a size that
+ * looked like a utility and was hand-written CSS, so Tailwind never emitted the
+ * `sm:` variant and the phone clamp governed every width. Both rules top out at
+ * 12rem, which is why the defect hid on a wide monitor and only showed on a
+ * laptop, where the title ran 13% large and pushed `Developer` into the
+ * sculpture. Measured rather than asserted against the class list, because the
+ * class list was exactly what looked correct.
+ */
+test('the hero title takes its desktop size rather than the phone clamp', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await expect(
+    page.getByRole('status', { name: /loading portfolio/i }),
+  ).toBeHidden();
+
+  const size = await page
+    .locator('#hero-title')
+    .evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+
+  // 11.8vw of 1440 is 169.9. The phone clamp is 14vw, which is already past the
+  // 192px ceiling here, so anything at the ceiling means the desktop rule never
+  // applied.
+  expect(size).toBeGreaterThan(165);
+  expect(size).toBeLessThan(175);
+});
+
 test('desktop 3D canvas keeps filling its stage after the intro', async ({
   page,
 }) => {

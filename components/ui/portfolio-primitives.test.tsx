@@ -11,7 +11,9 @@ describe("portfolio primitives", () => {
     render(<SectionHeading eyebrow="Profile" title="About me" />);
 
     expect(screen.getByText("Profile")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "About me" })).toHaveClass("font-serif");
+    // The display cut, not the body face: a section title has to read as a
+    // title even with the eyebrow above it stripped away.
+    expect(screen.getByRole("heading", { name: "About me" })).toHaveClass("font-display");
   });
 
   it("keeps reveal copy available in the rendered document", () => {

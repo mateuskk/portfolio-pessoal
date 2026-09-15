@@ -105,7 +105,7 @@ export function StackPanel({
     >
       <header className="px-page text-center">
         <div className="text-label uppercase text-muted-foreground">{copy.capabilities}</div>
-        <h2 className="mt-5 font-serif text-section leading-[0.9] tracking-[-0.055em]">
+        <h2 className="mt-5 font-display text-section font-medium leading-[0.9] tracking-[-0.05em]">
           {copy.stackTitle}
         </h2>
       </header>

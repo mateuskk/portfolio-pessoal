@@ -10,7 +10,7 @@ export function SectionHeading({ eyebrow, title, className }: SectionHeadingProp
   return (
     <header className={cn("grid gap-5 lg:grid-cols-12", className)}>
       <div className="text-label uppercase text-muted-foreground lg:col-span-3">{eyebrow}</div>
-      <h2 className="font-serif text-section leading-[0.9] tracking-[-0.055em] lg:col-span-9">
+      <h2 className="font-display text-section font-medium leading-[0.9] tracking-[-0.05em] lg:col-span-9">
         {title}
       </h2>
     </header>

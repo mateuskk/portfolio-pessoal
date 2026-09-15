@@ -291,7 +291,12 @@ export function ArcRevealProvider({ children }: { children: ReactNode }) {
               {phase === "holding" && (
                 <motion.span
                   animate={{ opacity: 1, y: 0 }}
-                  className="font-serif text-[clamp(2.5rem,6vw,5rem)] leading-none tracking-[-0.05em] text-paper"
+                  /*
+                    Tighter than the family's default and deliberately not as
+                    tight as it will go: past about -0.09em the letters of
+                    `Contact` start meeting and the word reads as one mass.
+                  */
+                  className="font-display text-[clamp(2.5rem,6vw,5rem)] font-medium leading-none tracking-[-0.07em] text-paper"
                   data-testid="arc-reveal-label"
                   exit={{ opacity: 0, y: -15 }}
                   initial={{ opacity: 0, y: 15 }}

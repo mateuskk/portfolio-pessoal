@@ -21,6 +21,7 @@ const DESCRIPTIONS: Record<string, string> = {
   Motion: 'Animação e gestos para interfaces React.',
   MySQL: 'Banco de dados relacional.',
   'Next.js': 'Rotas, renderização e build para React.',
+  'Node.js': 'JavaScript no servidor, e o ferramental em volta dele.',
   PostgreSQL: 'Banco de dados relacional.',
   Python: 'Scripts, automação e trabalho com IA.',
   React: 'Interfaces construídas a partir de componentes.',
@@ -33,8 +34,7 @@ const DESCRIPTIONS: Record<string, string> = {
   'Tailwind CSS': 'Estilo que fica ao lado da marcação que ele afeta.',
   'Three.js': 'Gráficos 3D em tempo real renderizados no navegador.',
   TypeScript: 'JavaScript com tipos verificados antes de rodar.',
-  Vercel: 'Deploys e builds de pré-visualização.',
-  Netlify: 'Deploys e builds de pré-visualização.',
+  Cloudflare: 'Onde este site roda, servido na borda como um Worker.',
 };
 
 /**

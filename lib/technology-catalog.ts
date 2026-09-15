@@ -54,6 +54,11 @@ export const technologyCatalog = {
     icon: 'nextdotjs',
     description: 'Routing, rendering and the build for React.',
   },
+  'Node.js': {
+    name: 'Node.js',
+    icon: 'nodedotjs',
+    description: 'JavaScript on the server, and the tooling around it.',
+  },
   PostgreSQL: {
     name: 'PostgreSQL',
     icon: 'postgresql',
@@ -114,15 +119,10 @@ export const technologyCatalog = {
     icon: 'typescript',
     description: 'JavaScript with types checked before it runs.',
   },
-  Vercel: {
-    name: 'Vercel',
-    icon: 'vercel',
-    description: 'Deploys and preview builds.',
-  },
-  Netlify: {
-    name: 'Netlify',
-    icon: 'netlify',
-    description: 'Deploys and preview builds.',
+  Cloudflare: {
+    name: 'Cloudflare',
+    icon: 'cloudflare',
+    description: 'Where this site runs, served from the edge as a Worker.',
   },
 } satisfies Record<string, TechnologyMeta>;
 

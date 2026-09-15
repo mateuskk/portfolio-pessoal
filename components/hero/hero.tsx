@@ -196,9 +196,19 @@ export function Hero({
     >
       <div className="hairline absolute inset-x-page top-24 lg:top-28" />
 
+      {/*
+        Nudged toward the middle, and only on a wide screen.
+
+        The sculpture sits on the right and the type on the left, and how much
+        air is between them depends entirely on the width: measured, a 1920
+        screen leaves 113px of gap while a 1440 one has the title already
+        touching the canvas at 619px. A shift written without a breakpoint
+        would buy space on the wide screen by causing a collision on the
+        narrow one, so it starts at 2xl, where the gap exists to spend.
+      */}
       <div
         className={cn(
-          'relative z-20 my-auto lg:col-span-10',
+          'relative z-20 my-auto lg:col-span-10 2xl:pl-[3vw]',
           contained
             ? 'translate-y-6 py-10 sm:translate-y-8 sm:py-12 lg:translate-y-10 lg:py-14'
             : 'translate-y-12 py-16 sm:translate-y-16 sm:py-20 lg:translate-y-24 lg:py-24',
@@ -213,11 +223,19 @@ export function Hero({
             `sm:text-left` is a width test, and a handset turned sideways is
             844px across, so the title swung back to the left margin the moment
             anyone rotated. The alignment follows the same question the rest of
-            the page asks about phones instead. `sm:text-display` stays: that is
-            a size, not an alignment.
+            the page asks about phones instead. The size stays a width test:
+            that is what it is.
+
+            The size reaches for the variable rather than for a class named
+            after it. It used to say `sm:text-display`, which looked right and
+            did nothing: `.text-display` was hand-written CSS in `globals.css`
+            and not a utility Tailwind owns, so no `sm:` variant of it was ever
+            emitted. The phone clamp below governed every width instead, which
+            at 1440 made the title 192px where this asks for 170, and ran
+            `Developer` into the sculpture.
           */
           className={cn(
-            "mx-auto max-w-[12ch] text-center font-display text-[clamp(3.2rem,14vw,12rem)] font-medium leading-[0.66] tracking-[-0.075em] sm:text-display",
+            "mx-auto max-w-[12ch] text-center font-display text-[clamp(3.2rem,14vw,12rem)] font-medium leading-[0.66] tracking-[-0.075em] sm:text-[length:var(--display-size)]",
             !handheld && "sm:mx-0 sm:text-left",
           )}
         >

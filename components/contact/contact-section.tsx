@@ -69,7 +69,19 @@ export function ContactSection({ contact }: ContactSectionProps) {
           saves is what pays for the larger type.
         */}
         <h2>
-          <RevealText className="mx-auto max-w-[22ch] font-serif text-[clamp(2.6rem,min(11.6vw,17svh),14rem)] leading-[0.88] tracking-[-0.05em]">
+          {/*
+            Inter, the body face, rather than the display cut. Both lines of
+            this headline now speak in the same voice and differ only in size,
+            which is the point: the question and the answer are one sentence.
+
+            The height term came down from 17svh with it. Inter carries a much
+            larger x-height than the serif this replaced, so the same number
+            drew a taller headline: measured, it pushed this section 28px past
+            a 1280x720 screen and 15px past a 1366x768 one, which is the one
+            thing it must never do. 16svh is the largest that still fits every
+            size tested.
+          */}
+          <RevealText className="mx-auto max-w-[22ch] text-[clamp(2.6rem,min(11.6vw,16svh),14rem)] font-medium leading-[0.88] tracking-[-0.05em]">
             {copy.contactLineOne}
           </RevealText>
           <RevealText className="mx-auto mt-3 max-w-[22ch] text-[clamp(2rem,min(10vw,14.8svh),12.5rem)] font-medium leading-[0.88] tracking-[-0.065em]">

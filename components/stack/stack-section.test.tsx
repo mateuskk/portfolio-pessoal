@@ -142,7 +142,6 @@ describe("getStackIconColor", () => {
     // These published brand marks are pure black and need their light variant.
     for (const slug of [
       "nextdotjs",
-      "vercel",
       "threedotjs",
       "shadcnui",
       "jsonwebtokens",

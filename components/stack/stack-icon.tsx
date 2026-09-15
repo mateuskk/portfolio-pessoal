@@ -35,12 +35,11 @@ export function contrastRatio(a: string, b: string) {
 /**
  * The brand colour, unless it would vanish into the page.
  *
- * A handful of the marks here are deliberately pure black — Next.js, Vercel
- * and Three.js all ship a monochrome logo whose published dark-background
- * variant is white — and Prisma's slate is barely better. Drawing `hex`
- * unconditionally would leave four holes in the row. Swapping those to paper
- * is what their own brand guidance does, so this stays faithful rather than
- * inventing a tint.
+ * A handful of the marks here are deliberately pure black. Next.js and Three.js
+ * both ship a monochrome logo whose published dark-background variant is white,
+ * and Prisma's slate is barely better. Drawing `hex` unconditionally would
+ * leave holes in the row. Swapping those to paper is what their own brand
+ * guidance does, so this stays faithful rather than inventing a tint.
  */
 export function getStackIconColor(hex: string, background = INK) {
   if (contrastRatio(hex, background) >= MIN_ICON_CONTRAST) return hex;

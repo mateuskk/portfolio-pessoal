@@ -139,6 +139,7 @@ export const portfolioContent: PortfolioContent = {
       items: [
         technologyCatalog.React,
         technologyCatalog['Next.js'],
+        technologyCatalog['Node.js'],
         technologyCatalog.Flask,
       ],
     },
@@ -161,7 +162,7 @@ export const portfolioContent: PortfolioContent = {
     },
     {
       label: 'Cloud & deploy',
-      items: [technologyCatalog.Vercel, technologyCatalog.Netlify],
+      items: [technologyCatalog.Cloudflare],
     },
     {
       label: 'Version control',

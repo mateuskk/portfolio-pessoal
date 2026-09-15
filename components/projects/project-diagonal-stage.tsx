@@ -183,7 +183,7 @@ function ProjectTextRail({
             key={project.slug}
             style={{ height: ROW_HEIGHT }}
           >
-            <h3 className="max-w-[12ch] font-serif text-[clamp(3.4rem,6.2vw,7.5rem)] leading-[0.88] tracking-[-0.065em]">
+            <h3 className="max-w-[12ch] font-display text-[clamp(3.4rem,6.2vw,7.5rem)] font-medium leading-[0.88] tracking-[-0.05em]">
               {project.title}
             </h3>
             <p className="mt-5 text-sm uppercase tracking-[0.15em] text-paper/70">
