@@ -33,6 +33,7 @@ export type UiCopy = {
   allSelectedProjects: string;
   browseAllProjects: string;
   projectTechnologies: (project: string) => string;
+  technologyFallback: (technology: string) => string;
   viewRepository: string;
   viewProjectRepository: (project: string) => string;
   previousProject: string;
@@ -72,6 +73,8 @@ export const UI_COPY: Record<LanguageCode, UiCopy> = {
     allSelectedProjects: 'All selected projects',
     browseAllProjects: 'Browse all selected projects',
     projectTechnologies: (project) => `${project} technologies`,
+    technologyFallback: (technology) =>
+      `${technology} is part of this project's technology stack.`,
     viewRepository: 'View repository',
     viewProjectRepository: (project) => `View ${project} repository`,
     previousProject: 'Previous project',
@@ -110,6 +113,8 @@ export const UI_COPY: Record<LanguageCode, UiCopy> = {
     allSelectedProjects: 'Todos os projetos selecionados',
     browseAllProjects: 'Ver todos os projetos selecionados',
     projectTechnologies: (project) => `Tecnologias de ${project}`,
+    technologyFallback: (technology) =>
+      `${technology} faz parte da stack deste projeto.`,
     viewRepository: 'Ver repositório',
     viewProjectRepository: (project) => `Ver repositório de ${project}`,
     previousProject: 'Projeto anterior',

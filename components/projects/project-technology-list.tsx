@@ -3,9 +3,9 @@
 import { Tooltip } from '@base-ui/react/tooltip';
 
 import { StackTool, TOOLTIP_DELAY_MS } from '@/components/stack/stack-tool';
-import { getTechnologyMeta } from '@/lib/technology-catalog';
+import { getTechnologyMetaIn } from '@/lib/technology-meta';
 import { cn } from '@/lib/utils';
-import { useCopy } from "@/components/providers/language-provider";
+import { useCopy, useLanguage } from "@/components/providers/language-provider";
 
 type ProjectTechnologyListProps = {
   projectTitle: string;
@@ -33,6 +33,7 @@ export function ProjectTechnologyList({
   decorative = false,
 }: ProjectTechnologyListProps) {
   const copy = useCopy();
+  const { language } = useLanguage();
 
   return (
     <Tooltip.Provider delay={TOOLTIP_DELAY_MS}>
@@ -49,7 +50,11 @@ export function ProjectTechnologyList({
             <span data-testid="project-technology-icon">
               <StackTool
                 focusable={!decorative}
-                item={getTechnologyMeta(technology)}
+                item={getTechnologyMetaIn(
+                  language,
+                  technology,
+                  copy.technologyFallback,
+                )}
                 variant="project"
               />
             </span>

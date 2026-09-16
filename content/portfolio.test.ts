@@ -23,8 +23,8 @@ describe("portfolio content", () => {
   /**
    * A tool a project names has to be one the catalog knows.
    *
-   * `getTechnologyMeta` answers an unknown name rather than throwing: it hands
-   * back no icon and a sentence assembled from the name itself. That is the
+   * `getTechnologyMetaIn` answers an unknown name rather than throwing: it
+   * hands back no icon and a sentence assembled from the name itself. That is the
    * right behaviour at runtime and the wrong thing to ship, because the chip
    * still renders and the only tell is one mark missing from a row of six.
    * Caught here instead, where the name is written.

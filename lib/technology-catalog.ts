@@ -125,13 +125,3 @@ export const technologyCatalog = {
     description: 'Where this site runs, served from the edge as a Worker.',
   },
 } satisfies Record<string, TechnologyMeta>;
-
-export function getTechnologyMeta(name: string): TechnologyMeta {
-  return (
-    technologyCatalog[name as keyof typeof technologyCatalog] ?? {
-      name,
-      icon: null,
-      description: `${name} is part of this project's technology stack.`,
-    }
-  );
-}

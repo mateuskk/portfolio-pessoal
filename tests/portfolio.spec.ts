@@ -2261,12 +2261,21 @@ test('choosing a language rewrites the site and is remembered', async ({ page })
     page.getByRole('heading', { name: /tem um projeto em mente/i }),
   ).toBeVisible();
 
-  // The choice outlives the visit.
+  /*
+    The choice outlives the visit.
+
+    Polled rather than read once. Waiting on the Portuguese loader to hide
+    looks like a wait and is not one: before the page hydrates that status does
+    not exist under any name, `toBeHidden` is satisfied by an element that is
+    absent, and the read underneath it lands while `lang` still holds the `en`
+    the server sent. The test passed on about two runs in three, and the third
+    reported the wrong thing, since a language that is remembered and a page
+    that has not woken up yet are indistinguishable at that instant.
+  */
   await page.reload();
-  await expect(
-    page.getByRole('status', { name: /carregando portf/i }),
-  ).toBeHidden();
-  expect(await page.evaluate(() => document.documentElement.lang)).toBe('pt-BR');
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.lang))
+    .toBe('pt-BR');
   await expect(nav.getByRole('link', { name: 'Sobre' })).toBeVisible();
 });
 
