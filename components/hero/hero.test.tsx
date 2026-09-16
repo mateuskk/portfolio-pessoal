@@ -78,9 +78,11 @@ describe("Hero", () => {
     expect(screen.getByTestId("hero-split-primary")).toBeInTheDocument();
     const editorialWrapper = screen.getByTestId("hero-split-editorial");
     expect(editorialWrapper).toHaveClass("-mt-[0.26em]");
-    const editorial = editorialWrapper.querySelector(".font-serif");
+    // `font-editorial`, not the site's general serif: this one word is the only
+    // place that face is set, which is why it has a token of its own.
+    const editorial = editorialWrapper.querySelector(".font-editorial");
     expect(editorial).toHaveTextContent("Developer");
-    expect(editorial).toHaveClass("font-serif", "italic", "text-paper/80");
+    expect(editorial).toHaveClass("font-editorial", "italic", "text-paper/80");
     const intro = screen.getByTestId("hero-split-intro").querySelector("p");
     expect(intro).toHaveTextContent("Olá, eu sou Mateus Bastos");
     expect(intro).toHaveClass("text-pretty", "text-center", "tracking-[-0.01em]");

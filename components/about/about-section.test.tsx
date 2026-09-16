@@ -72,11 +72,11 @@ describe('AboutSection', () => {
     const bodyItalic = lead.querySelector('em');
     expect(bodyItalic).toHaveTextContent('design');
     expect(bodyItalic).toHaveClass('italic', 'font-semibold');
-    expect(bodyItalic).not.toHaveClass('font-serif');
+    expect(bodyItalic).not.toHaveClass('font-emphasis');
 
     // The statement is large enough for that same swap to read as intended.
     const headlineItalic = screen.getByTestId('about-statement').querySelector('em');
-    expect(headlineItalic).toHaveClass('font-serif', 'italic');
+    expect(headlineItalic).toHaveClass('font-emphasis', 'italic');
   });
 
   it('does not draw a divider above the paper version', () => {

@@ -29,6 +29,8 @@
   --font-sans: var(--font-inter);
   --font-display: var(--font-inter-tight);
   --font-serif: var(--font-instrument-serif);
+  --font-editorial: var(--font-eb-garamond);
+  --font-emphasis: var(--font-fraunces);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);

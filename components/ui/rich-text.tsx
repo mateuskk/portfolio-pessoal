@@ -14,22 +14,23 @@ export type RichTextToken = {
  * of classes serves both the paper and the dark tone; `currentColor` is the
  * fallback for callers that set neither.
  *
- * No `font-light` on the serif — Instrument Serif loads weight 400 only, so it
- * was a no-op.
+ * No weight of its own: the emphasis inherits `font-light` from the heading it
+ * sits inside, and unlike the serifs elsewhere on this page the face here is
+ * variable across weight, so that 300 is a weight it can actually draw.
  */
 export const RICH_TEXT_EMPHASIS_CLASS = {
   strong: 'font-semibold text-[color:var(--rt-strong,currentColor)]',
-  em: 'font-serif italic text-[color:var(--rt-em,currentColor)]',
+  em: 'font-emphasis italic text-[color:var(--rt-em,currentColor)]',
 } as const;
 
 /**
  * The same emphasis at body size, where the display pair does not work.
  *
- * Both sets run at the very same `font-size` — the serif only *reads* smaller,
- * because Instrument Serif carries a far shorter x-height than Inter, and at a
- * headline that difference is a deliberate change of voice. Dropped into a
- * paragraph it stops reading as voice and starts reading as shrunken text, so
- * here italic keeps the body face and leans on weight instead.
+ * Both sets run at the very same `font-size`. The serif only *reads* smaller,
+ * carrying a far shorter x-height than Inter, and at a headline that difference
+ * is a deliberate change of voice. Dropped into a paragraph it stops reading as
+ * voice and starts reading as shrunken text, so here italic keeps the body face
+ * and leans on weight instead.
  */
 export const RICH_TEXT_BODY_EMPHASIS_CLASS = {
   strong: 'font-semibold text-[color:var(--rt-strong,currentColor)]',

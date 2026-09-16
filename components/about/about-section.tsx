@@ -253,7 +253,19 @@ export function AboutSection({
             active={headRevealed}
             data-testid="about-statement"
             delay={HEAD_STATEMENT_DELAY}
-            className="max-w-[24ch] font-sans text-[clamp(2.45rem,4.2vw,5rem)] font-light leading-[1.01] tracking-[-0.052em]"
+            /*
+              The floor answers to the emphasis face, not to taste. It governs
+              below 933px, where 4.2vw falls under it, and the phone is where
+              this statement is tightest: the pin holds about 635px of copy in a
+              667px screen. Fraunces sets the italic here, and it is wider than
+              the serif it replaced, which took the statement from six lines to
+              seven on a 390px screen and grew the section 41px, stranding the
+              last paragraph below the fold. 2.4rem is the measured value that
+              takes it back to six, and leaves the section at 658px, five
+              shorter than it stood before the face changed. Desktop never sees
+              it.
+            */
+            className="max-w-[24ch] font-sans text-[clamp(2.4rem,4.2vw,5rem)] font-light leading-[1.01] tracking-[-0.052em]"
           >
             {content.statement}
           </RichDepthInText>

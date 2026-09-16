@@ -256,7 +256,7 @@ export function Hero({
             <CharRevealText
               delay={editorialDelay}
               trigger="intro"
-              className="font-serif font-normal italic tracking-[-0.055em] text-paper/80"
+              className="font-editorial font-normal italic tracking-[-0.055em] text-paper/80"
             >
               {editorialWord}
             </CharRevealText>
