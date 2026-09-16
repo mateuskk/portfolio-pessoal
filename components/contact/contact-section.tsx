@@ -70,18 +70,47 @@ export function ContactSection({ contact }: ContactSectionProps) {
         */}
         <h2>
           {/*
-            Inter, the body face, rather than the display cut. Both lines of
-            this headline now speak in the same voice and differ only in size,
-            which is the point: the question and the answer are one sentence.
+            Fraunces italic, on the question alone.
 
-            The height term came down from 17svh with it. Inter carries a much
-            larger x-height than the serif this replaced, so the same number
-            drew a taller headline: measured, it pushed this section 28px past
-            a 1280x720 screen and 15px past a 1366x768 one, which is the one
-            thing it must never do. 16svh is the largest that still fits every
-            size tested.
+            The two lines are one sentence, and they used to share a voice and
+            differ only in size. A serif on the question inverts that: this face
+            runs a far shorter x-height than Inter at the same font-size, so the
+            question now reads quieter than the answer beneath it and "Let's
+            make it real." is what carries the weight.
+
+            16.8svh is the ceiling, and it is width that sets it, not height.
+            The tightest screen is not the shortest one but the one with the
+            largest height against its width, 1440x820 among those measured:
+            there the line and the padding below come to 1310px of the 1325
+            available. 17svh spends those last fifteen pixels and the question
+            wraps to two rows. Swept against the size this replaced, the set of
+            screens where it wraps is unchanged, 1440x900, 1512x982 and
+            1680x1050, all of which wrapped before as well.
+
+            ink/70 rather than full ink, 7.3:1 against the paper. The tone is
+            the second half of the same recession: far enough back to read as a
+            different voice, not so far that the section's own question looks
+            switched off. Neither `--graphite` nor `--muted` works here, the
+            first being indistinguishable from ink on this ground and the second
+            failing contrast at 2.2:1.
+
+            The padding is the italic's due, and it answers the same bug the
+            reveal box already solves vertically for descenders. This box
+            shrinks to fit, so it closes on the advance width of the last glyph
+            and the reveal's `overflow-hidden` shears anything outside it. Two
+            things sit outside it, and at 139px they measured 16.6px together:
+            the question mark's ink leans 9.6px past its own advance, and the
+            negative tracking is applied after that final glyph too, pulling the
+            edge a further 7px inward. 0.15em covers both with room to spare at
+            every step of the clamp.
+
+            Asymmetric because the overhang is: the opening H starts flush on
+            its origin, so the left needs only enough not to catch the
+            antialiasing. Room matters here, since the wider this box grows the
+            sooner the line wraps, and a second row is what puts this section
+            past the screen.
           */}
-          <RevealText className="mx-auto max-w-[22ch] text-[clamp(2.6rem,min(11.6vw,16svh),14rem)] font-medium leading-[0.88] tracking-[-0.05em]">
+          <RevealText className="mx-auto max-w-[22ch] px-[0.03em] pr-[0.15em] font-emphasis text-[clamp(2.6rem,min(12.19vw,16.8svh),14.7rem)] font-normal italic leading-[0.88] tracking-[-0.05em] text-ink/70">
             {copy.contactLineOne}
           </RevealText>
           <RevealText className="mx-auto mt-3 max-w-[22ch] text-[clamp(2rem,min(10vw,14.8svh),12.5rem)] font-medium leading-[0.88] tracking-[-0.065em]">
