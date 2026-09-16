@@ -54,12 +54,50 @@ export function StackTool({
         className={cn(
           'focus-ring group/tool flex cursor-default items-center rounded-sm transition-transform duration-300 ease-(--ease-weighted) hover:-translate-y-0.5 focus-visible:-translate-y-0.5',
           project
-            ? 'gap-2 border-b border-white/15 pb-2 text-xs uppercase tracking-[0.12em] text-paper/70'
+            ? // `rounded-none` because the shared radius is a token this project
+              // redefines: `rounded-sm` lands at 7.2px, and on a chip this
+              // short that curls both ends of the bottom border upward into
+              // little hooks. The stack variant draws no border and keeps it.
+              'relative gap-2 rounded-none border-b border-white/15 pb-2 text-xs uppercase tracking-[0.12em] text-paper/70'
             : 'gap-3 text-lg tracking-[-0.02em] sm:text-xl',
         )}
         data-testid="stack-tool"
         tabIndex={focusable ? undefined : -1}
       >
+        {/*
+          The chip's own rule, lit rather than answered with a second line.
+
+          A hairline used to wipe in under the name on hover. That is the stack
+          panel's vocabulary and reads correctly there, but here it landed a few
+          pixels above a rule the chip already carries, so hovering one drew two
+          lines where the design has one. This lights the rule that is already
+          there: a one-pixel bar sitting exactly on the border, carrying both a
+          lit colour and the halo around it.
+
+          It paints over the border rather than recolouring it, because
+          recolouring does not work on this page. `globals.css` sets
+          `border-color` on `*` outside any cascade layer, and unlayered styles
+          beat layered ones whatever their specificity, so every Tailwind
+          border-colour utility loses to it. That is worth fixing on its own
+          terms one day, and is not this chip's business.
+
+          A gradient band rather than a shadow around a hairline. A shadow
+          surrounds the box it is cast from, so on a one-pixel bar it curled
+          around both ends and drew a small hook rising at each edge. A band
+          shares the rule's own left and right edges and fades only up and
+          down, so it has no ends to curl. Weighted downward, away from the
+          name: the core sits on the border at 30% of the band's height, which
+          leaves three pixels of falloff above and six below.
+
+          Painted rather than filtered, so forty-odd chips on one project cost
+          no blur.
+        */}
+        {project && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 -bottom-[7px] h-[10px] bg-[linear-gradient(to_bottom,transparent_0%,var(--paper)_30%,var(--paper)_40%,transparent_100%)] opacity-0 transition-opacity duration-500 ease-(--ease-weighted) group-hover/tool:opacity-45 group-focus-visible/tool:opacity-45"
+          />
+        )}
         <TechnologyIcon
           className={cn(
             'transition-transform duration-300 ease-(--ease-weighted) group-hover/tool:scale-115 group-focus-visible/tool:scale-115',
@@ -69,12 +107,16 @@ export function StackTool({
         />
         <span className="relative">
           {item.name}
-          {/* Wipes in from the left on hover — the same hairline vocabulary the
-              rest of the section is drawn with. */}
-          <span
-            aria-hidden="true"
-            className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-current transition-transform duration-500 ease-(--ease-weighted) group-hover/tool:scale-x-100 group-focus-visible/tool:scale-x-100"
-          />
+          {/* Wipes in from the left on hover, the same hairline vocabulary the
+              rest of the section is drawn with. The project chips leave it to
+              the rule they already sit on, which is why this is the stack's
+              alone. */}
+          {!project && (
+            <span
+              aria-hidden="true"
+              className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-current transition-transform duration-500 ease-(--ease-weighted) group-hover/tool:scale-x-100 group-focus-visible/tool:scale-x-100"
+            />
+          )}
         </span>
       </Tooltip.Trigger>
 
